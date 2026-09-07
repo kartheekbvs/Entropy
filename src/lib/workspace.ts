@@ -41,10 +41,15 @@ export class WorkspaceApiError extends Error {
 
 // ── Root + sandbox ───────────────────────────────────────────
 
-/** Workspace root, resolved at CALL time (AGENT_WORKSPACE override wins). */
+/** Workspace root, resolved at CALL time (AGENT_WORKSPACE override wins).
+ * v5.2 — anchors to ENTROPY_PROJECT_ROOT when the standalone production
+ * server has chdir'd into .next/standalone (files must land in the REAL
+ * project workspace, not the build folder). */
 export function getWorkspaceRoot(): string {
   const override = process.env.AGENT_WORKSPACE?.trim();
-  return path.resolve(override ? override : path.join(process.cwd(), "workspace"));
+  const base =
+    process.env.ENTROPY_PROJECT_ROOT?.trim() || process.cwd();
+  return path.resolve(override ? override : path.join(base, "workspace"));
 }
 
 /** Directories/files never shown in the tree and never zipped. */

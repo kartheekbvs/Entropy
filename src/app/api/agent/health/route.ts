@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getProviderHealth } from "@/lib/agent/llm";
+import { probeNetwork } from "@/lib/agent/offline";
 import { WORKSPACE_ROOT, getShellInfo } from "@/lib/agent/coding-tools";
 import { rateLimitStatus } from "@/lib/agent/rate-limit";
 import { llmResilienceStatus } from "@/lib/agent/llm-resilience";
@@ -18,6 +19,10 @@ export async function GET() {
   try {
     const health = await getProviderHealth();
     const shell = await getShellInfo();
+    // v5.2 — 1.5s reachability probe (cached 30s): lets the launchers and
+    // the preflight card say "OFFLINE — local engine armed" instead of
+    // letting the user discover it through provider timeouts.
+    const networkOnline = await probeNetwork();
 
     let workspaceExists = true;
     let workspaceFiles = 0;
@@ -45,6 +50,8 @@ export async function GET() {
         mode: health.mode,
         active: health.active,
         providers: health.providers,
+        // v5.2 — network reachability + offline-engine state
+        networkOnline,
       },
       workspace: {
         root: WORKSPACE_ROOT,

@@ -35,10 +35,19 @@ import { rateLimit } from "./rate-limit";
 import { publishPreviewWrite } from "@/lib/preview";
 
 // ── Workspace sandbox ────────────────────────────────────────
+// v5.2 — the standalone production server does `process.chdir(__dirname)`
+// (.next/standalone!), which used to send the agent's files into the build
+// folder instead of the project workspace ("files are not creating" on a
+// laptop install). scripts/server.js sets ENTROPY_PROJECT_ROOT before boot:
+// anchor here. Falls back to cwd (dev mode, plain node) when unset.
+const PROJECT_BASE =
+  process.env.ENTROPY_PROJECT_ROOT && process.env.ENTROPY_PROJECT_ROOT.trim()
+    ? process.env.ENTROPY_PROJECT_ROOT.trim()
+    : process.cwd();
 export const WORKSPACE_ROOT = path.resolve(
   process.env.AGENT_WORKSPACE && process.env.AGENT_WORKSPACE.trim()
     ? process.env.AGENT_WORKSPACE.trim()
-    : path.join(process.cwd(), "workspace")
+    : path.join(PROJECT_BASE, "workspace")
 );
 
 const SHELL_LOG_DIR = path.join(WORKSPACE_ROOT, ".agent-shell");

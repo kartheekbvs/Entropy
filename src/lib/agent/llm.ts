@@ -132,7 +132,9 @@ export type ProviderName =
   | "glm"
   | "gemini"
   | "openai"
-  | "zai";
+  | "zai"
+  // v5.2 — the deterministic no-network fallback engine.
+  | "offline";
 
 /** One budget line in the live terminal feed (💰, loud). */
 function announceBudget(text: string): void {
@@ -2121,6 +2123,17 @@ export async function generateWithAuto(
 ): Promise<{ response: LlmResponse; provider: string; handoff?: string }> {
   const mode = process.env.AGENT_LLM_PROVIDER || "auto";
 
+  // v5.2 — FORCED offline mode: the deterministic local engine only,
+  // zero network. Set AGENT_LLM_PROVIDER=offline in .env.
+  if (mode === "offline") {
+    const { offlineGenerate, offlineEngineEnabled } = await import("./offline");
+    if (!offlineEngineEnabled()) throw new NoLlmProviderError(buildNoProviderMessage(null));
+    return {
+      response: await offlineGenerate(history, tools, system),
+      provider: "offline",
+    };
+  }
+
   if (mode === "zai") {
     if (!(await zaiAvailable())) throw new NoLlmProviderError(buildNoProviderMessage(null));
     try {
@@ -2182,7 +2195,7 @@ export async function generateWithAuto(
   // file actually exists on this machine. Without this guard, an install
   // with no keys falls through to ZAI.create(), whose raw SDK error
   // ("init failed: Configuration file not found…") becomes the run's error.
-  const runFor: Record<Exclude<ProviderName, "zai">, () => Promise<LlmResponse>> = {
+  const runFor: Record<Exclude<ProviderName, "zai" | "offline">, () => Promise<LlmResponse>> = {
     groq: () => groqProvider.generate(history, tools, system, opts),
     openrouter: () => openrouterProvider.generate(history, tools, system, opts),
     explabs: () => explabsProvider.generate(history, tools, system, opts),
@@ -2208,6 +2221,7 @@ export async function generateWithAuto(
   const candidates: Array<{ name: ProviderName; run: () => Promise<LlmResponse> }> = [];
   for (const name of providerChainOrder()) {
     if (name === "zai") continue;
+    if (name === "offline") continue; // handled explicitly below
     if (name === "ollama") {
       // v4.2 — local open-weights inference is a candidate only when
       // the Ollama daemon actually answers (probe cached 60s).
@@ -2218,8 +2232,28 @@ export async function generateWithAuto(
   }
   if (await zaiAvailable()) candidates.push({ name: "zai", run: () => zaiGenerateWithRetry(history, tools, system) });
 
-  if (candidates.length === 0) {
-    // No key in .env AND no .z-ai-config → fail with the FIX, not a stack trace.
+  // v5.2 — NETWORK GATE + OFFLINE SHORT-CIRCUIT (the anti-lag fix):
+  // when the machine is offline (1.5s probe, cached 30s) or no key is
+  // configured at all, the cloud chain is skipped ENTIRELY — the old
+  // behavior burned the full 120s deadline on per-provider timeouts,
+  // which the user saw as "lagging and failing". The local engine
+  // answers instantly instead and offline coding goals still create
+  // real files on disk.
+  const { offlineGenerate, offlineEngineEnabled, probeNetwork } = await import("./offline");
+  const useOfflineFallback = offlineEngineEnabled();
+  const netUp = useOfflineFallback ? await probeNetwork() : true;
+  if (!netUp || candidates.length === 0) {
+    if (useOfflineFallback) {
+      setAutoState("offline", netUp ? "local engine (no provider key configured)" : "local engine (offline — network unreachable, cloud providers skipped)");
+      return {
+        response: await offlineGenerate(history, tools, system),
+        provider: "offline",
+        ...(candidates.length > 0
+          ? { handoff: `network unreachable after probe — the Entropy Local Engine took over instantly (no per-provider timeout lag), memory preserved.` }
+          : {}),
+      };
+    }
+    // No key in .env AND no .z-ai-config AND no offline engine → fail with the FIX.
     throw new NoLlmProviderError(buildNoProviderMessage(null));
   }
 
@@ -2314,8 +2348,19 @@ export async function generateWithAuto(
     await sleepMs(waitMs);
   }
   // Every configured provider refused for the whole deadline window
-  // (bad keys, quota, outage…). Give a per-provider diagnosis + the
-  // fix — never the raw SDK error. The patience layer may still retry.
+  // (bad keys, quota, outage…). v5.2 — the chain NEVER dead-ends: the
+  // Entropy Local Engine answers as the terminal fallback, so the run
+  // still produces a useful result (and offline coding goals still
+  // write real files). Only with OFFLINE_ENGINE=0 does the run fail
+  // with the per-provider diagnosis + fix.
+  if (offlineEngineEnabled()) {
+    setAutoState("offline", "local engine — every cloud provider refused (see failures above), answering locally");
+    return {
+      response: await offlineGenerate(history, tools, system),
+      provider: "offline",
+      handoff: `all ${candidates.length} cloud providers refused for the chain deadline — the Entropy Local Engine took over with the conversation preserved. Run continues offline.`,
+    };
+  }
   throw new NoLlmProviderError(buildNoProviderMessage(null, failures));
 }
 
@@ -2518,10 +2563,18 @@ export async function assertProviderConfigured(): Promise<{
   if (mode === "zai" && !(await zaiAvailable())) {
     return { ok: false, message: buildNoProviderMessage(null) };
   }
+  // v5.2 — the offline engine alone is enough to run: no key needed.
+  if (mode === "offline") {
+    const { offlineEngineEnabled } = await import("./offline");
+    return offlineEngineEnabled()
+      ? { ok: true, message: "" }
+      : { ok: false, message: "AGENT_LLM_PROVIDER=offline but the local engine is disabled (OFFLINE_ENGINE=0). Remove that line or pick a provider." };
+  }
   if (mode === "auto") {
+    const { offlineEngineEnabled } = await import("./offline");
     const hasAny =
       groqKey() || openrouterKey() || explabsKey() || nvidiaKey() || glmKey() || geminiKey() || openaiKey() ||
-      (await zaiAvailable()) || (await ollamaAvailable());
+      (await zaiAvailable()) || (await ollamaAvailable()) || offlineEngineEnabled();
     if (!hasAny) return { ok: false, message: buildNoProviderMessage(null) };
   }
   return { ok: true, message: "" };
@@ -2669,9 +2722,40 @@ export async function getProviderHealth(): Promise<{
         }
   );
 
+  // v5.2 — the ENTROPY LOCAL ENGINE: deterministic offline fallback.
+  // It answers when no key is configured OR the network is down, and
+  // offline coding goals still create real files on disk. OFFLINE_ENGINE=0
+  // in .env disables it (runs then hard-fail with the fix message).
+  const { offlineEngineEnabled, probeNetwork, OFFLINE_ENGINE_VERSION } = await import("./offline");
+  const offlineOn = offlineEngineEnabled();
+  const netUp = offlineOn ? await probeNetwork() : false;
+  providers.push(
+    offlineOn
+      ? {
+          name: "offline",
+          configured: true,
+          detail: `Entropy Local Engine v${OFFLINE_ENGINE_VERSION} armed — ${
+            netUp
+              ? "network reachable; answers only if every cloud provider fails"
+              : "OFFLINE detected — takes over instantly (no timeout lag), writes real files"
+          }`,
+        }
+      : {
+          name: "offline",
+          configured: false,
+          detail: "OFFLINE_ENGINE=0 — disabled in .env",
+          hint: "Deterministic no-network engine: keeps the agent answering and creating files with zero keys / zero internet. Remove OFFLINE_ENGINE=0 to re-arm.",
+        }
+  );
+
   // v4.1 — order the health list as the actual chain (main first).
+  // v5.2 — "offline" always sorts LAST (it is the terminal fallback).
   const order = providerChainOrder();
-  providers.sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
+  providers.sort((a, b) => {
+    const ai = a.name === "offline" ? order.length : order.indexOf(a.name);
+    const bi = b.name === "offline" ? order.length : order.indexOf(b.name);
+    return ai - bi;
+  });
 
   return {
     mode,

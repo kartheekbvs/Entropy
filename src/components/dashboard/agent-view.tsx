@@ -308,7 +308,7 @@ function StepRow({ step }: { step: AgentStep }) {
     return (
       <div className="rounded-lg border border-primary/30 bg-primary/5 px-4 py-3">
         <p className="microlabel mb-1 text-primary">GOAL</p>
-        <p className="text-sm leading-relaxed text-foreground">{step.text}</p>
+        <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground">{step.text}</p>
       </div>
     );
   }
@@ -318,19 +318,21 @@ function StepRow({ step }: { step: AgentStep }) {
     const isEvent = Boolean(step.text?.startsWith("⚡"));
     return (
       <p
-        className={`flex items-center gap-1.5 pl-2 text-[11px] ${
+        className={`flex items-start gap-1.5 pl-2 text-[11px] ${
           isEvent ? "font-medium text-primary" : "text-muted-foreground"
         }`}
       >
-        <Radio className={`h-3 w-3 ${isEvent ? "text-primary" : "text-amber-400"}`} aria-hidden="true" />
-        {step.text}
+        <Radio className={`mt-0.5 h-3 w-3 shrink-0 ${isEvent ? "text-primary" : "text-amber-400"}`} aria-hidden="true" />
+        {/* v5.2 — min-w-0 flex-1 break-words: long handoff/relay notes must
+            WRAP, never push the row wider than the transcript panel. */}
+        <span className="min-w-0 flex-1 break-words">{step.text}</span>
       </p>
     );
   }
 
   if (step.type === "assistant" && step.text) {
     return (
-      <p className="whitespace-pre-wrap pl-2 text-sm leading-relaxed text-foreground/90">
+      <p className="whitespace-pre-wrap break-words pl-2 text-sm leading-relaxed text-foreground/90">
         {step.text}
       </p>
     );
@@ -343,7 +345,7 @@ function StepRow({ step }: { step: AgentStep }) {
           <Wrench className="h-3 w-3 text-primary" aria-hidden="true" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="font-mono text-xs text-primary">
+          <p className="break-words font-mono text-xs text-primary">
             {step.name}
             <span className="ml-2 font-sans text-[11px] text-muted-foreground">
               {TOOL_LABELS[step.name ?? ""] ?? "tool call"}
@@ -370,10 +372,11 @@ function StepRow({ step }: { step: AgentStep }) {
               <ChevronRight className="h-3 w-3" aria-hidden="true" />
             )}
             <span className="font-mono">{step.name}</span>
-            <span>→ {step.summary}</span>
+            {/* v5.2 — wrap+truncate so long tool summaries never widen the row */}
+            <span className="min-w-0 flex-1 truncate">→ {step.summary}</span>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <pre className="mt-1 max-h-48 overflow-auto rounded-md border border-border/60 bg-secondary/30 p-2.5 font-mono text-[10.5px] leading-relaxed text-muted-foreground">
+            <pre className="mt-1 max-h-48 overflow-auto whitespace-pre-wrap break-words rounded-md border border-border/60 bg-secondary/30 p-2.5 font-mono text-[10.5px] leading-relaxed text-muted-foreground">
               {step.preview}
             </pre>
           </CollapsibleContent>
@@ -389,7 +392,7 @@ function StepRow({ step }: { step: AgentStep }) {
           <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
           FINAL REPORT
         </p>
-        <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
+        <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground/90">
           {step.text}
         </p>
       </div>
@@ -403,7 +406,7 @@ function StepRow({ step }: { step: AgentStep }) {
           <XCircle className="h-3.5 w-3.5" aria-hidden="true" />
           ERROR
         </p>
-        <p className="font-mono text-xs text-red-300">{step.text}</p>
+        <p className="whitespace-pre-wrap break-words font-mono text-xs text-red-300">{step.text}</p>
       </div>
     );
   }
@@ -1418,7 +1421,7 @@ export function AgentView({
           ) : (
             <div
               ref={transcriptRef}
-              className="max-h-[480px] space-y-3 overflow-y-auto pr-2"
+              className="max-h-[480px] space-y-3 overflow-y-auto overflow-x-hidden pr-2"
               role="log"
               aria-label="Agent run transcript"
             >
@@ -1513,7 +1516,7 @@ export function AgentView({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="max-h-72">
+          <ScrollArea className="max-h-72 w-full">
             {historyQuery.isLoading ? (
               <p className="py-6 text-center text-sm text-muted-foreground">Loading history…</p>
             ) : (historyQuery.data?.runs.length ?? 0) === 0 ? (
@@ -1564,7 +1567,7 @@ export function AgentView({
                           <span className="block truncate text-[13px] text-foreground">
                             {r.goal}
                           </span>
-                          <span className="block text-[11px] text-muted-foreground">
+                          <span className="block truncate text-[11px] text-muted-foreground">
                             {timeAgo(r.startedAt)} · {r.stepCount} steps ·{" "}
                             {r.tokensUsed > 0 ? `${r.tokensUsed} tokens · ` : ""}
                             {r.mode}

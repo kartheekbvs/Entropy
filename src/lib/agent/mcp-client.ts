@@ -424,7 +424,8 @@ export async function loadExternalMcpTools(): Promise<McpExternalToolsResult> {
   }
 
   const configPath =
-    process.env["AGENT_MCP_CONFIG"] || path.join(process.cwd(), "mcp.config.json");
+    process.env["AGENT_MCP_CONFIG"] ||
+    path.join(process.env.ENTROPY_PROJECT_ROOT?.trim() || process.cwd(), "mcp.config.json");
   let config: McpConfigFile;
   try {
     const raw = await fs.readFile(configPath, "utf8");

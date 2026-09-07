@@ -18,7 +18,13 @@ function ScrollArea({
     >
       <ScrollAreaPrimitive.Viewport
         data-slot="scroll-area-viewport"
-        className="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1"
+        // v5.2 — [&>div]:!block neutralizes Radix's internal `display:table;
+        // min-width:100%` wrapper, which lets wide children (long file
+        // paths, unbroken tokens) EXPAND the viewport into an invisible
+        // horizontal overflow (no visible scrollbar, content clipped at
+        // the right edge — the reported chat-history bug). Block layout
+        // keeps the viewport at its CSS width so content wraps instead.
+        className="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1 [&>div]:!block"
       >
         {children}
       </ScrollAreaPrimitive.Viewport>

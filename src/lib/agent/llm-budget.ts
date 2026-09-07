@@ -40,7 +40,9 @@ const env = (name: string): string => process.env[name] || "";
 
 const workspaceRoot = () =>
   path.resolve(
-    env("AGENT_WORKSPACE").trim() ? env("AGENT_WORKSPACE").trim() : path.join(process.cwd(), "workspace")
+    env("AGENT_WORKSPACE").trim()
+      ? env("AGENT_WORKSPACE").trim()
+      : path.join(process.env.ENTROPY_PROJECT_ROOT?.trim() || process.cwd(), "workspace")
   );
 const STATE_FILE = () => path.join(workspaceRoot(), ".agent-state", "llm-budget.json");
 

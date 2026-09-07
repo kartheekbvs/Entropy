@@ -18,7 +18,7 @@
 #          `fast` skips the long readiness soak when re-checking.
 # ─────────────────────────────────────────────────────────────────
 set -u
-cd /home/z/my-project
+cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 mkdir -p logs
 
 SOAK="${1:-}"
@@ -74,9 +74,12 @@ else
 fi
 
 # ── 4. Start Next.js production standalone (detached) ───────────
+# v5.2: goes through scripts/server.js (cross-platform wrapper — same
+# entry `npm start` uses on Windows) so ENTROPY_PROJECT_ROOT is set
+# for the db-path resolver and the root .env wins over the baked copy.
 log "starting Next.js production server on :3000 ..."
 nohup setsid env PORT=3000 HOSTNAME=0.0.0.0 NODE_ENV=production \
-  node .next/standalone/server.js > logs/next-prod.log 2>&1 < /dev/null &
+  node scripts/server.js > logs/next-prod.log 2>&1 < /dev/null &
 disown
 
 # wait for readiness (max 40s)

@@ -19,6 +19,7 @@ node_modules/
 .next/
 /dist/
 /db/
+/logs/
 /workspace/
 /download/
 /skills/
@@ -36,6 +37,9 @@ node_modules/
 /dev.log
 /dev-server.log
 /server.log
+/build.log
+/worklog.md
+/dev.pid
 /bun.lock
 /test-results/
 /coverage/
@@ -55,6 +59,37 @@ EOF
 
 # Dev server tee-creates dev.log inside the project — make sure it's absent
 rm -f "$STAGE/dev.log" "$STAGE/server.log"
+
+# ── v5.2: ship a CLEAN pre-built SQLite database ───────────────
+# The zip's db comes from the live database with all AgentRun test
+# rows WIPED (sandbox test junk must never appear as the user's
+# "chat history") while the tracker/contacts demo data is kept.
+# A pre-pushed db also means the app works even if the user's
+# `prisma db push` fails (engines, offline…).
+if [ -f db/custom.db ]; then
+  mkdir -p "$STAGE/db"
+  cp db/custom.db "$STAGE/db/custom.db"
+  python3 - "$STAGE/db/custom.db" <<'PYEOF'
+import sqlite3, sys
+con = sqlite3.connect(sys.argv[1])
+try:
+    con.execute("DELETE FROM AgentRun")
+    con.execute("DELETE FROM AgentSetting")
+    con.commit()
+    print("[db-clean] AgentRun/AgentSetting rows wiped; Applications=%d Contacts=%d" % (
+        con.execute("SELECT COUNT(*) FROM Application").fetchone()[0],
+        con.execute("SELECT COUNT(*) FROM Contact").fetchone()[0]))
+except Exception as e:
+    print("[db-clean] note:", e)
+finally:
+    con.close()
+PYEOF
+else
+  echo "NOTE: no live db/custom.db — zip relies on install-time prisma db push"
+fi
+
+# v5.2: empty logs dir (never ship sandbox logs)
+mkdir -p "$STAGE/logs"
 
 # ── Installers + README from download/ ────────────────────────
 cp download/install.sh "$STAGE/"
@@ -108,6 +143,11 @@ GLM_MODEL=glm-4.6
 GEMINI_API_KEY=$OWNER_KEY
 GEMINI_MODEL=gemini-flash-latest
 AGENT_LLM_PROVIDER=auto
+# v5.2 — ENTROPY LOCAL ENGINE: deterministic no-network fallback.
+# When no key is configured OR the machine is offline, the local
+# engine answers instantly (no timeout lag) and offline coding
+# goals still create real files in workspace/. Set 0 to disable.
+OFFLINE_ENGINE=1
 AGENT_WORKSPACE=
 # v4.2: the zero-cost free-model relay (works with ZERO credits on the
 # OpenRouter key; each model ~50 req/day, auto-rotation on 429/402)
@@ -290,6 +330,37 @@ grep -q 'rootChanged' "$STAGE/src/components/dashboard/stackblitz-embed.tsx" || 
 grep -q 'min(72vh' "$STAGE/src/components/dashboard/stackblitz-embed.tsx" || { echo "MISSING: v4.9 taller embed"; exit 1; }
 grep -q 'FRESHEST-WORK-WINS' "$STAGE/src/lib/stackblitz-project.ts" || { echo "MISSING: v4.9 freshest-work root selection"; exit 1; }
 grep -q '4.9.0' "$STAGE/src/app/api/preview/stackblitz/route.ts" || { echo "MISSING: v4.9 feed version"; exit 1; }
+
+# ── v5.2: Windows/offline reliability gates ───────────────────
+for f in src/lib/agent/offline.ts src/lib/db.ts scripts/server.js \
+         scripts/postbuild.js scripts/dev-log.js start.bat start.sh dev.bat \
+         db/custom.db; do
+  [ -f "$STAGE/$f" ] || { echo "MISSING: v5.2 $f"; exit 1; }
+done
+grep -q 'offlineGenerate' "$STAGE/src/lib/agent/llm.ts" || { echo "MISSING: v5.2 offline engine wired into llm.ts"; exit 1; }
+grep -q 'probeNetwork' "$STAGE/src/lib/agent/llm.ts" || { echo "MISSING: v5.2 network gate"; exit 1; }
+grep -q 'ENTROPY_PROJECT_ROOT' "$STAGE/src/lib/db.ts" || { echo "MISSING: v5.2 cross-platform db path resolution"; exit 1; }
+# cross-platform package.json scripts (no POSIX-only tee/NODE_ENV= prefix)
+! grep -q '"dev": "next dev.*tee' "$STAGE/package.json" || { echo "LEAK: POSIX-only dev script (tee)"; exit 1; }
+! grep -q '"start": "NODE_ENV=' "$STAGE/package.json" || { echo "LEAK: POSIX-only start script (env prefix)"; exit 1; }
+grep -q '"start": "node scripts/server.js"' "$STAGE/package.json" || { echo "MISSING: v5.2 cross-platform start script"; exit 1; }
+grep -q 'postbuild.js' "$STAGE/package.json" || { echo "MISSING: v5.2 cross-platform build script"; exit 1; }
+# the chat-history overflow fix must ship (break-words + viewport block)
+grep -q 'break-words' "$STAGE/src/components/dashboard/agent-view.tsx" || { echo "MISSING: v5.2 transcript wrap hardening"; exit 1; }
+grep -q '\[&>div\]:!block' "$STAGE/src/components/ui/scroll-area.tsx" || { echo "MISSING: v5.2 ScrollArea viewport fix"; exit 1; }
+# installers must launch PRODUCTION, not dev
+grep -q 'bun run start' "$STAGE/install.bat" || { echo "MISSING: v5.2 production launch in install.bat"; exit 1; }
+grep -q 'bun run start' "$STAGE/install.sh" || { echo "MISSING: v5.2 production launch in install.sh"; exit 1; }
+grep -q '^OFFLINE_ENGINE=1' "$STAGE/.env" || { echo "MISSING: v5.2 offline engine armed in shipped .env"; exit 1; }
+# shipped db must be clean (zero test runs)
+RUNS=$(python3 -c "
+import sqlite3
+con = sqlite3.connect('$STAGE/db/custom.db')
+print(con.execute('SELECT COUNT(*) FROM AgentRun').fetchone()[0])
+con.close()")
+[ "$RUNS" = "0" ] || { echo "LEAK: shipped db contains $RUNS AgentRun rows (test junk)"; exit 1; }
+# no sandbox logs in the package
+! find "$STAGE/logs" -name '*.log' -size +1c | grep -q . || { echo "LEAK: sandbox logs in package"; exit 1; }
 
 # sanity: sandbox secrets must NOT be inside the package
 [ ! -f "$STAGE/.z-ai-config" ] || { echo "LEAK: .z-ai-config in package"; exit 1; }

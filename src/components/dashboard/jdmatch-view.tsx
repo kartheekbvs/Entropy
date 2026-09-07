@@ -391,7 +391,7 @@ export function JdMatchView() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="whitespace-pre-wrap rounded-lg bg-secondary/40 p-4 font-mono text-xs leading-relaxed text-foreground/90">
+              <p className="whitespace-pre-wrap break-words rounded-lg bg-secondary/40 p-4 font-mono text-xs leading-relaxed text-foreground/90">
                 {aiAnalysis.coverLetter}
               </p>
             </CardContent>
