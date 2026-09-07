@@ -552,3 +552,23 @@ Stage Summary:
 - v5.0 shipped: Entropy is on GitHub (github.com/kartheekbvs/Entropy, clean secret-free history) with a LIVE GitHub Pages site (kartheekbvs.github.io/Entropy) mirroring the dual-agent menu; the app itself wears the Verdant Farms Cinematic green theme with the two-agent toggle + dropdown navigation and a dropdown-able live StackBlitz preview.
 - Keys: restored locally in .env (explabs primary → groq last); repo ships .env.example only.
 - Re-verify anytime: open https://kartheekbvs.github.io/Entropy/ · bun run dev → localhost:3000 · bun scripts/test-v45.ts · test-v47.ts · test-v49.ts.
+
+---
+Task ID: 5.1
+Agent: Super Z (main agent)
+Task: v5.1 — user: "the CSS coming in the GitHub Pages (kartheekbvs.github.io/Entropy) is good — use this style, ours is boring, not bright/attractive/vibrant. Implement those styles, re-verify all the codes, implement all the servers at production level, no failures, check each and every component."
+
+Work Log:
+- DIAGNOSED the dullness: the app used the same hue family as the Pages build but at dim/low-chroma tokens (cards L0.27, accent L0.38 dark wash, borders 40% alpha, muted text L0.74). The Pages site uses vivid values everywhere.
+- THEME v5.1 "VERDANT FARMS — CINEMATIC · BRIGHT" (src/app/globals.css): token parity with the Pages palette — borders oklch(0.75 0.16 142/38%) (= Pages --border2 #8fd367@38%), secondary/accent = bright #71c84b washes @14-16% (chips/menus light up green instead of gray), muted-foreground L0.74→0.81 (Pages --dim), vivid chart set (leaf/emerald#wheat/lime/mint), popover brighter, glow alphas up, aurora luminance raised.
+- SIGNATURE RULES (all class-token-safe): solid `.bg-primary` (Buttons/active pills/Progress fills) = sunlit 135deg gradient + green halo shadow (alpha utilities like bg-primary/15 are distinct tokens — washes untouched); gradient-text = Pages-exact #a9e46d→#71c84b→#f0c66a; hovered .bg-card blooms a leaf halo; [role=progressbar] fills glow 0 0 12px rgba(113,200,75,.4).
+- COMPONENTS: JOB AGENT ⇄ CODING AGENT active toggle now the solid sunlit pill with dark-forest text (was dim bg-primary/15 chip); STATUS_CONFIG pills re-tuned to Pages pill colors (saved=emerald, applied=wheat, assessment=sky, interview=purple #c084fc, offer=lime); terminal/xterm already vivid.
+- PRODUCTION SERVER (root cause found: dev-mode next-server ballooned to 1.9GB RSS and was OOM-KILLED mid-session): built the standalone production server (`bun run build` — 17.9s, 11/11 pages) and verified `node .next/standalone/server.js` boots in 129ms at ~131MB RSS (15× leaner, OOM-proof). Sandbox note: background servers are reaped at tool-call boundaries (proven with sleep/keepalive probes) — wrote scripts/verify-v51-browser.sh: ONE mega-call that boots prod server → sweeps → tears down.
+- VERIFICATION BATTERY (all on the production build): 6 API routes 200 (applications/contacts/agent run+auto/preview ports+stackblitz); agent-browser sweep — bright tokens live (computed styles), job dropdown → Tracker renders (16 cards), coding dropdown → Live App Preview iframe mounted phase LIVE, 0 page errors, 0 console errors; tsc 0 errors (fixed pre-existing vlm-v50.ts multimodal typing); eslint 0; test-v45 ALL PASS; test-v47 ALL PASS; test-v49 ALL PASS; MCP v3 handshake 34 tools ALL PASS; OpenRelay 8787 healthz OK + /v1/models chain live; objective screenshot analysis: vivid-pixel share +40-66%.
+- GIT: first push was BLOCKED by GitHub Push Protection — an auto-commit (25433fa) had committed worklog.md containing the full Groq + ExLabs keys. Redacted both keys in worklog.md, soft-reset to remote HEAD, folded into ONE clean v5.1 commit c04fc48, secret-scan clean, pushed 4d2aea8..c04fc48.
+- PACKAGE: dist/job-command-center synced (globals.css, command-center.tsx, shared.ts, vlm-v50.ts, verify scripts + screenshots); download/README.md gained the v5.1 section; download/job-command-center.zip REBUILT (211 files, 920K).
+
+Stage Summary:
+- v5.1 shipped: the app now wears the exact bright/vibrant style of the GitHub Pages site the user loves (token-level + signature-rule parity, zero component breakage), AND the app now runs as a true production standalone server (129ms boot, 131MB RSS, OOM-proof) with the whole stack re-verified end-to-end on the production build.
+- GitHub: github.com/kartheekbvs/Entropy @ c04fc48 (v5.1) — secret-free history; Pages kartheekbvs.github.io/Entropy 200.
+- Re-verify anytime: bash scripts/verify-v51-browser.sh (prod boot + full sweep) · bun scripts/test-v45.ts / test-v47.ts / test-v49.ts · node scripts/test-mcp-v3.mjs.
