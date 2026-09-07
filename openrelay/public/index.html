@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenRelay · never-fail LLM gateway</title>
+<style>
+  :root {
+    --pink: #ff5fa8; --pink-soft: #ff9ad5; --pink-deep: #d61f7e;
+    --glass: rgba(255, 95, 168, 0.07); --glass-brd: rgba(255, 150, 200, 0.22);
+    --ok: #4ade80; --warn: #fbbf24; --bad: #f87171; --muted: #cf9bbb;
+    --txt: #ffe9f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    color: var(--txt); min-height: 100vh; overflow-x: hidden;
+    background: #150410;
+    background-image:
+      radial-gradient(1200px 700px at 85% -10%, rgba(214, 31, 126, .28), transparent 60%),
+      radial-gradient(900px 600px at -10% 30%, rgba(120, 20, 80, .35), transparent 55%),
+      radial-gradient(700px 500px at 50% 110%, rgba(255, 95, 168, .18), transparent 60%);
+  }
+  .orbs { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .orb { position: absolute; border-radius: 50%; filter: blur(60px); opacity: .35; animation: float 14s ease-in-out infinite; }
+  .orb.a { width: 340px; height: 340px; background: #ff2d8a; top: -80px; left: 8%; }
+  .orb.b { width: 260px; height: 260px; background: #b3126e; bottom: 6%; right: 10%; animation-delay: -5s; }
+  .orb.c { width: 200px; height: 200px; background: #ff7fc0; top: 45%; left: 70%; animation-delay: -9s; }
+  @keyframes float { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(30px,-40px,0) scale(1.08); } }
+  .wrap { position: relative; z-index: 1; max-width: 1240px; margin: 0 auto; padding: 28px 20px 60px; }
+
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-bottom: 26px; }
+  .logo {
+    width: 58px; height: 58px; border-radius: 18px; display: grid; place-items: center;
+    font-size: 30px; color: #fff;
+    background: linear-gradient(135deg, #ff5fa8, #b3126e);
+    box-shadow: 0 10px 30px rgba(255, 47, 138, .45), inset 0 1px 0 rgba(255,255,255,.35);
+    animation: pulse 3s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  .title h1 { font-size: 26px; font-weight: 800; letter-spacing: .3px;
+    background: linear-gradient(90deg, #ffd1ec, #ff9ad5, #ff5fa8); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .title p { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .badges { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge { padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; color: #ffd7ec;
+    background: var(--glass); border: 1px solid var(--glass-brd); backdrop-filter: blur(12px); }
+  .badge b { color: #fff; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 26px; }
+  .glass { background: var(--glass); border: 1px solid var(--glass-brd); border-radius: 20px;
+    backdrop-filter: blur(18px); box-shadow: 0 8px 32px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06); }
+  .kpi { padding: 16px 18px; transform-style: preserve-3d; transition: transform .25s ease, box-shadow .25s ease; }
+  .kpi:hover { box-shadow: 0 18px 44px rgba(255, 47, 138, .28), inset 0 1px 0 rgba(255,255,255,.1); }
+  .kpi .v { font-size: 26px; font-weight: 800; color: #fff; text-shadow: 0 0 18px rgba(255, 95, 168, .55); }
+  .kpi .v small { font-size: 13px; color: var(--pink-soft); font-weight: 600; }
+  .kpi .l { font-size: 11.5px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-top: 4px; }
+
+  h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .18em; color: var(--pink-soft); margin: 30px 0 14px; }
+
+  .ring { display: flex; align-items: center; gap: 0; overflow-x: auto; padding: 18px 16px; scrollbar-width: thin; }
+  .chip { min-width: 148px; padding: 10px 12px; border-radius: 14px; background: rgba(255, 95, 168, .05);
+    border: 1px solid rgba(255, 150, 200, .16); position: relative; flex: 0 0 auto; }
+  .chip .rank { position: absolute; top: -9px; left: -9px; width: 22px; height: 22px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #fff;
+    background: linear-gradient(135deg, #ff5fa8, #b3126e); box-shadow: 0 4px 12px rgba(255,47,138,.5); }
+  .chip .m { font-size: 11.5px; font-family: ui-monospace, Consolas, monospace; color: #ffd7ec; word-break: break-all; }
+  .chip .e { font-size: 10.5px; color: var(--muted); margin-top: 3px; }
+  .chip .dot { position: absolute; top: 8px; right: 8px; width: 9px; height: 9px; border-radius: 50%; }
+  .dot.ok { background: var(--ok); box-shadow: 0 0 10px var(--ok); }
+  .dot.open { background: var(--bad); box-shadow: 0 0 10px var(--bad); animation: blink 1.2s infinite; }
+  .dot.half { background: var(--warn); box-shadow: 0 0 10px var(--warn); }
+  .dot.idle { background: #7c5a6d; }
+  @keyframes blink { 50% { opacity: .35; } }
+  .arrow { flex: 0 0 auto; color: var(--pink); font-size: 16px; padding: 0 6px; opacity: .8; }
+  .wrapchip { min-width: 120px; padding: 10px 12px; border-radius: 14px; text-align: center; flex: 0 0 auto;
+    background: linear-gradient(135deg, rgba(255, 95, 168, .18), rgba(179, 18, 110, .18));
+    border: 1px dashed var(--pink); color: #ffd1ec; font-size: 12px; font-weight: 700; }
+  .wrapchip small { display: block; font-weight: 400; color: var(--muted); font-size: 10px; margin-top: 2px; }
+  .chip.hotserved { border-color: var(--ok); box-shadow: 0 0 22px rgba(74, 222, 128, .35); }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .card { padding: 16px 18px; transform-style: preserve-3d; transition: transform .25s ease; }
+  .card:hover { transform: translateY(-4px) rotateX(2deg); }
+  .card .head { display: flex; align-items: center; gap: 10px; }
+  .card .name { font-weight: 700; font-size: 15px; }
+  .card .models { margin: 10px 0 8px; display: flex; flex-direction: column; gap: 4px; }
+  .card .models code { font-family: ui-monospace, Consolas, monospace; font-size: 11px; color: #ffd7ec;
+    background: rgba(0,0,0,.25); border-radius: 6px; padding: 3px 8px; width: fit-content; }
+  .state { margin-left: auto; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+    padding: 4px 10px; border-radius: 999px; }
+  .state.closed { background: rgba(74, 222, 128, .15); color: var(--ok); border: 1px solid rgba(74,222,128,.35); }
+  .state.open { background: rgba(248, 113, 113, .15); color: var(--bad); border: 1px solid rgba(248,113,113,.35); }
+  .state.half-open { background: rgba(251, 191, 36, .15); color: var(--warn); border: 1px solid rgba(251,191,36,.35); }
+  .row { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .row b { color: #fff; }
+  .bar { height: 6px; border-radius: 99px; background: rgba(0,0,0,.35); margin-top: 10px; overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #ff5fa8, #4ade80); transition: width .5s; }
+  .err { margin-top: 10px; font-size: 11px; color: #ffb4c6; background: rgba(248,113,113,.1);
+    border: 1px solid rgba(248,113,113,.25); border-radius: 8px; padding: 7px 9px; word-break: break-word;
+    font-family: ui-monospace, Consolas, monospace; }
+
+  .console { margin-top: 6px; border-radius: 20px; padding: 14px 16px; height: 260px; overflow-y: auto;
+    font-family: ui-monospace, Consolas, monospace; font-size: 11.5px; line-height: 1.75; background: rgba(10, 2, 8, .55); }
+  .console .ln { white-space: pre-wrap; word-break: break-all; }
+  .console .t { color: #8f6480; margin-right: 8px; }
+  .console .ok { color: var(--ok); } .console .fail { color: var(--bad); } .console .wrap { color: #c084fc; }
+  footer { margin-top: 34px; text-align: center; color: var(--muted); font-size: 12px; line-height: 1.9; }
+  footer b { color: var(--pink-soft); }
+  @media (max-width: 640px) { .title h1 { font-size: 21px; } .kpi .v { font-size: 21px; } }
+</style>
+</head>
+<body>
+<div class="orbs"><div class="orb a"></div><div class="orb b"></div><div class="orb c"></div></div>
+<div class="wrap">
+  <header>
+    <div class="logo">⚡</div>
+    <div class="title">
+      <h1>OpenRelay</h1>
+      <p>the relay that never drops the baton · 1 → 2 → 3 … → N → ⟲ back to 1</p>
+    </div>
+    <div class="badges">
+      <div class="badge">v<b id="ver">–</b></div>
+      <div class="badge">port <b id="port">–</b></div>
+      <div class="badge">uptime <b id="uptime">–</b></div>
+      <div class="badge">steps <b id="nsteps">–</b></div>
+    </div>
+  </header>
+
+  <div class="kpis">
+    <div class="glass kpi"><div class="v" id="k-req">0</div><div class="l">requests</div></div>
+    <div class="glass kpi"><div class="v" id="k-rate">–</div><div class="l">success rate</div></div>
+    <div class="glass kpi"><div class="v" id="k-rot">0</div><div class="l">failovers · rotations</div></div>
+    <div class="glass kpi"><div class="v" id="k-tok">0</div><div class="l">tokens relayed</div></div>
+    <div class="glass kpi"><div class="v" id="k-queue">0<small>/0</small></div><div class="l">queue depth · inflight</div></div>
+    <div class="glass kpi"><div class="v" id="k-health">0</div><div class="l">healthy providers</div></div>
+  </div>
+
+  <h2>Relay ring — order = priority, wraps to #1</h2>
+  <div class="glass ring" id="ring"></div>
+
+  <h2>Providers</h2>
+  <div class="cards" id="cards"></div>
+
+  <h2>Live rotation log</h2>
+  <div class="glass console" id="console"></div>
+
+  <footer>
+    <b>OpenRelay</b> · MIT license · zero dependencies (Node ≥ 18) · state in <b>state/</b> survives restarts<br>
+    POST <b>/v1/chat/completions</b> · GET <b>/v1/models</b> · GET <b>/stats</b> · config in <b>config.json</b>
+  </footer>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const fmt = (n) => n == null ? '–' : n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'k' : String(n);
+const dur = (ms) => ms == null ? '–' : ms < 60_000 ? Math.round(ms / 1000) + 's' : Math.floor(ms / 60_000) + 'm' + Math.round((ms % 60_000) / 1000) + 's';
+
+// 3D tilt on glass cards
+document.addEventListener('mousemove', (e) => {
+  const el = e.target.closest('.kpi, .card');
+  if (!el) return;
+  const r = el.getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+  el.style.transform = `perspective(700px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg) translateY(-2px)`;
+});
+document.addEventListener('mouseout', (e) => {
+  const el = e.target.closest && e.target.closest('.kpi, .card');
+  if (el) el.style.transform = '';
+});
+
+let lastLogTs = 0;
+
+async function tick() {
+  try {
+    const s = await (await fetch('/stats')).json();
+    $('ver').textContent = s.version; $('port').textContent = s.port;
+    $('uptime').textContent = dur(s.uptimeMs); $('nsteps').textContent = s.steps.length;
+    const t = s.usage.totals;
+    $('k-req').textContent = fmt(t.requests);
+    $('k-rate').textContent = t.successRate == null ? '–' : Math.round(t.successRate * 100) + '%';
+    $('k-rot').textContent = fmt(t.rotations);
+    $('k-tok').textContent = fmt(t.tokens);
+    $('k-queue').innerHTML = `${s.queue.depth}<small>/${s.queue.inflight}</small>`;
+    const healthy = new Set(s.steps.filter(st => st.breaker.state !== 'open').map(st => st.entry)).size;
+    const total = new Set(s.steps.map(st => st.entry)).size;
+    $('k-health').textContent = healthy + '/' + total;
+
+    // relay ring
+    const lastOk = [...s.usage.log].reverse().find(l => l.ok)?.step;
+    const ring = $('ring');
+    ring.innerHTML = s.steps.map(st => `
+      <div class="chip ${st.key === lastOk ? 'hotserved' : ''}">
+        <span class="rank">${st.rank}</span>
+        <span class="dot ${st.breaker.state === 'closed' ? (st.usage && st.usage.lastOkAt ? 'ok' : 'idle') : st.breaker.state.replace('-','')}"></span>
+        <div class="m">${st.model}</div>
+        <div class="e">${st.label}${st.local ? ' 💻' : ''}${st.breaker.state !== 'closed' ? ' · ' + dur(st.breaker.remainingMs) : ''}</div>
+      </div>`).join('<span class="arrow">➜</span>')
+      + `<span class="arrow">➜</span>
+         <div class="wrapchip">⟲ back to #1<small>after backoff · free at the tail</small></div>`;
+
+    // provider cards (group steps by entry)
+    const byEntry = new Map();
+    for (const st of s.steps) { if (!byEntry.has(st.entry)) byEntry.set(st.entry, []); byEntry.get(st.entry).push(st); }
+    $('cards').innerHTML = [...byEntry.entries()].map(([id, steps]) => {
+      const st = steps[0];
+      const u = steps.map(x => x.usage).filter(Boolean);
+      const req = u.reduce((a, b) => a + b.requests, 0), ok = u.reduce((a, b) => a + b.ok, 0);
+      const tok = u.reduce((a, b) => a + b.tokensIn + b.tokensOut, 0);
+      const lat = u.filter(x => x.lastLatencyMs).map(x => x.lastLatencyMs);
+      const lastErr = u.map(x => x.lastError).filter(Boolean).pop();
+      const rate = req ? Math.round(ok / req * 100) : null;
+      const dot = st.breaker.state;
+      return `<div class="glass card">
+        <div class="head"><span class="name">${st.label}${st.local ? ' 💻' : ''}</span>
+          <span class="state ${dot}">${dot}${dot === 'open' ? ' · ' + dur(st.breaker.remainingMs) : ''}</span></div>
+        <div class="models">${steps.map(x => `<code>${x.model}</code>`).join('')}</div>
+        <div class="row"><span>requests</span><b>${req}</b></div>
+        <div class="row"><span>tokens</span><b>${fmt(tok)}</b></div>
+        <div class="row"><span>last latency</span><b>${lat.length ? Math.round(lat[lat.length-1]) + 'ms' : '–'}</b></div>
+        <div class="row"><span>trips</span><b>${st.breaker.trips}</b></div>
+        <div class="bar"><i style="width:${rate ?? 0}%"></i></div>
+        ${lastErr ? `<div class="err">${String(lastErr).slice(0, 140)}</div>` : ''}
+      </div>`;
+    }).join('');
+
+    // rotation log
+    const con = $('console');
+    const lines = s.usage.log.slice(-90).map(l => {
+      const time = new Date(l.ts).toISOString().slice(11, 19);
+      const cls = l.wrap ? 'wrap' : (l.ok ? 'ok' : 'fail');
+      let text;
+      if (l.wrap) text = `round ${l.round} exhausted every step → wrap-around: back to ${l.nextFirst} in ${Math.round((l.waitMs||0)/100)/10}s`;
+      else if (l.ok) text = `round ${l.round} · ${l.step} SERVED the request (${l.ms}ms)${l.probe ? ' · half-open probe' : ''}`;
+      else text = `round ${l.round} · ${l.step} FAILED [${l.kind}] ${String(l.err || '').slice(0, 110)} → rotating`;
+      return `<div class="ln"><span class="t">${time}</span><span class="${cls}">${text}</span></div>`;
+    }).join('');
+    con.innerHTML = lines || '<div class="ln"><span class="muted">waiting for the first request…</span></div>';
+    const near = con.scrollHeight - con.scrollTop - con.clientHeight < 60;
+    if (near) con.scrollTop = con.scrollHeight;
+  } catch (e) {
+    document.title = 'OpenRelay · offline';
+  }
+}
+tick();
+setInterval(tick, 2000);
+</script>
+</body>
+</html>

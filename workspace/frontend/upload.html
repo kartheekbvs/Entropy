@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Upload a trained .pkl model to ModelForge and get an instant, secured prediction API." />
+  <title>Upload Model — ModelForge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <nav class="mf-nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo" aria-label="ModelForge home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <path d="M14 2L26 8V20L14 26L2 20V8L14 2Z" stroke="url(#lg)" stroke-width="2" fill="none"/>
+          <circle cx="14" cy="14" r="4" fill="url(#lg2)"/>
+          <defs>
+            <linearGradient id="lg" x1="2" y1="2" x2="26" y2="26">
+              <stop offset="0%" stop-color="#71c84b"/><stop offset="100%" stop-color="#3d9b3f"/>
+            </linearGradient>
+            <linearGradient id="lg2" x1="10" y1="10" x2="18" y2="18">
+              <stop offset="0%" stop-color="#b7df62"/><stop offset="100%" stop-color="#f0c66a"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span>ModelForge</span>
+      </a>
+      <div class="nav-links">
+        <a href="/#features">Features</a>
+        <a href="/#how-it-works">How It Works</a>
+        <a href="/dashboard.html">Dashboard</a>
+      </div>
+      <div class="nav-actions">
+        <span class="ws-status" id="ws-status" data-state="offline" title="Realtime WebSocket channel">
+          <span class="ws-dot"></span><span class="ws-label">Offline</span>
+        </span>
+        <a href="/upload.html" class="btn btn-outline">Upload Model</a>
+        <a href="/docs" target="_blank" rel="noopener" class="btn btn-primary">API Docs</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="scroll-progress"></div>
+
+  <div class="page-container">
+    <div class="page-header">
+      <h1 class="page-title">Upload Model</h1>
+      <p class="page-subtitle">Upload a trained ML model (.pkl) and get instant API access.</p>
+    </div>
+
+    <div class="upload-container">
+      <!-- Dropzone -->
+      <div class="upload-dropzone" id="dropzone">
+        <div class="upload-dropzone-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+          </svg>
+        </div>
+        <h3>Drop your model here</h3>
+        <p>or <span class="browse-link">browse files</span></p>
+        <p style="margin-top:8px;font-size:0.78rem">
+          Any joblib-compatible estimator: scikit-learn pipelines, XGBoost, LightGBM…
+        </p>
+        <div style="margin-top:16px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-muted);background:var(--surface2);padding:4px 12px;border-radius:50px;border:1px solid var(--border)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+            </svg>
+            .pkl
+          </span>
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-muted);background:var(--surface2);padding:4px 12px;border-radius:50px;border:1px solid var(--border)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+            </svg>
+            up to 200 MB
+          </span>
+        </div>
+
+        <!-- Selected file indicator (filename-display) -->
+        <div style="margin-top:20px;display:none;align-items:center;gap:10px;justify-content:center" id="file-selected-display">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <span id="filename-display" style="font-size:0.9rem;font-weight:600;color:var(--green)"></span>
+        </div>
+      </div>
+
+      <!-- Upload form: one file input, picked up directly by FormData -->
+      <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" name="file" id="file-input" accept=".pkl" hidden />
+
+        <div class="upload-form">
+          <div class="form-group">
+            <label class="form-label" for="model-name">Model Name *</label>
+            <input type="text" name="name" id="model-name" class="form-input" placeholder="e.g. Spam Classifier v2" required maxlength="120" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="model-desc">Description</label>
+            <textarea name="description" id="model-desc" class="form-textarea" rows="3" placeholder="What the model does, what it was trained on, expected input format…"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="model-task">Task Type</label>
+            <select name="task_type" id="model-task" class="form-select">
+              <option value="unknown">Auto-detect (recommended)</option>
+              <option value="classification">Classification</option>
+              <option value="regression">Regression</option>
+              <option value="clustering">Clustering</option>
+            </select>
+            <span class="form-hint">Auto-detect reads the estimator type and class labels — recommended.</span>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="submit-btn" style="align-self:flex-start;margin-top:8px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+            </svg>
+            Upload Model
+          </button>
+        </div>
+      </form>
+
+      <!-- Info card -->
+      <div style="margin-top:28px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+          </svg>
+          What happens next?
+        </h3>
+        <ol style="font-size:0.88rem;color:var(--text-dim);line-height:1.8;padding-left:20px">
+          <li>The artifact is deserialized and smoke-checked — invalid files are rejected with a typed 422 and cleaned up.</li>
+          <li>The model enters the catalog with a collision-safe ID and is served warm from the LRU cache.</li>
+          <li>A default <code style="font-family:var(--mono);color:var(--accent)">predict</code>-scoped API key is minted automatically.</li>
+          <li>Predict immediately via <code style="font-family:var(--mono);color:var(--accent)">POST /api/predict/{model_id}</code> — and watch it land on the dashboard in real time.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <footer class="mf-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+          <path d="M14 2L26 8V20L14 26L2 20V8L14 2Z" stroke="url(#fg)" stroke-width="2" fill="none"/>
+          <circle cx="14" cy="14" r="4" fill="url(#fg2)"/>
+          <defs>
+            <linearGradient id="fg" x1="2" y1="2" x2="26" y2="26">
+              <stop offset="0%" stop-color="#71c84b"/><stop offset="100%" stop-color="#3d9b3f"/>
+            </linearGradient>
+            <linearGradient id="fg2" x1="10" y1="10" x2="18" y2="18">
+              <stop offset="0%" stop-color="#b7df62"/><stop offset="100%" stop-color="#f0c66a"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span>ModelForge</span>
+      </div>
+      <p class="footer-copy">ML Model Hosting Platform — v2.0</p>
+      <div class="footer-links">
+        <a href="/">Landing</a>
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/apikeys.html">API Keys</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/realtime.js"></script>
+  <script src="/static/main.js"></script>
+</body>
+</html>

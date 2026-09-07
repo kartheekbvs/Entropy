@@ -1,0 +1,24 @@
+{
+  "_readme": "External MCP servers for the autonomous coding agent (v4.0). Conventions follow github/github-mcp-server. 'github' is ENABLED via npx — it activates automatically once GITHUB_PERSONAL_ACCESS_TOKEN is set in .env (a server whose referenced var is EMPTY is skipped safely, never spawned with a blank token). $VAR / ${VAR} values expand from .env. AGENT_MCP=0 disables all external MCP. Tool names become mcp_<server>_<tool>. Docker users: swap the npx command for the docker/ghcr.io variant from the v3.5 config.",
+  "mcpServers": {
+    "github": {
+      "enabled": true,
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "$GITHUB_PERSONAL_ACCESS_TOKEN"
+      },
+      "_note": "npx works on Windows/macOS/Linux with Node installed (spawned with a shell on Windows). Needs a classic PAT with repo/issue scopes: github.com/settings/tokens. Skipped safely until the token is set."
+    },
+    "github-remote": {
+      "enabled": false,
+      "transport": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer $GITHUB_COPILOT_TOKEN"
+      },
+      "_note": "Remote GitHub MCP (no local process) — requires a GitHub Copilot OAuth token, not a PAT. Flip enabled after setting GITHUB_COPILOT_TOKEN."
+    }
+  }
+}

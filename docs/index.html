@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Entropy — AI Agent by Kartheek</title>
+<meta name="description" content="Entropy: the AI agent command center created by Kartheek. A Job Agent hunting 21 live boards and a Coding Agent that ships running apps (StackBlitz auto-run)." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2307130d'/%3E%3Cpath d='M16 5c4 5 8 8 8 13a8 8 0 1 1-16 0c0-5 4-8 8-13z' fill='%2371c84b'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+/* ═══════════════════════════════════════════════════════════
+   ENTROPY · Verdant Farms Cinematic (GitHub Pages build)
+   ModelForge-inspired: deep forest base, leaf green, lime and
+   wheat-gold harvest accents, glass panels, film grain + aurora.
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --bg: #07130d; --bg2: #0b1f14;
+  --surface: #10291a; --surface2: #163621;
+  --border: rgba(115, 190, 92, 0.18); --border2: rgba(143, 211, 103, 0.38);
+  --primary: #71c84b; --primary-d: #3d9b3f;
+  --accent: #b7df62; --wheat: #f0c66a;
+  --cyan: #9ee7a0; --text: #eef7df; --dim: #b7cbb2; --muted: #6f9270;
+  --radius: 14px; --radius-lg: 22px;
+  --glow: 0 0 80px rgba(113, 200, 75, 0.16);
+  --font: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font); background: var(--bg); color: var(--text);
+  line-height: 1.6; overflow-x: hidden; min-height: 100vh;
+}
+::selection { background: rgba(113,200,75,.35); }
+* { scrollbar-width: thin; scrollbar-color: var(--primary) var(--surface); }
+::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: var(--font); }
+
+/* ── aurora + film grain (cinematic) ── */
+.aurora {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(52% 44% at 18% 12%, rgba(61,155,63,.18), transparent 70%),
+    radial-gradient(45% 40% at 82% 20%, rgba(48,130,90,.14), transparent 70%),
+    radial-gradient(60% 52% at 55% 95%, rgba(240,198,106,.09), transparent 72%),
+    radial-gradient(38% 34% at 92% 78%, rgba(113,200,75,.10), transparent 70%);
+  animation: drift 26s ease-in-out infinite alternate;
+}
+.aurora::after {
+  content: ""; position: absolute; inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(4,10,7,.55) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: auto, 160px 160px; opacity: .5; mix-blend-mode: soft-light;
+}
+@keyframes drift {
+  0% { background-position: 0% 0%, 100% 0%, 50% 100%, 100% 100%; }
+  100% { background-position: 14% 8%, 88% 12%, 42% 96%, 96% 88%; filter: hue-rotate(14deg); }
+}
+.grid {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(113,200,75,.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(113,200,75,.05) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+
+/* ── layout ── */
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+
+/* ── header ── */
+header.site {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(7,19,13,.78); backdrop-filter: blur(18px) saturate(1.35);
+  border-bottom: 1px solid var(--border);
+}
+.hbar { display: flex; align-items: center; gap: 14px; padding: 12px 0; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.logo {
+  width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center;
+  background: linear-gradient(135deg, rgba(113,200,75,.2), rgba(183,223,98,.08));
+  border: 1px solid var(--border2); box-shadow: 0 0 18px rgba(113,200,75,.28);
+  flex: none;
+}
+.logo svg { width: 20px; height: 20px; }
+.brand h1 {
+  font-size: 17px; font-weight: 700; letter-spacing: .02em;
+  background: linear-gradient(100deg, #a9e46d, var(--primary) 52%, var(--wheat));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.brand small {
+  display: block; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted); font-weight: 600;
+}
+.online {
+  margin-left: auto; display: flex; align-items: center; gap: 7px;
+  font-size: 10.5px; font-weight: 600; letter-spacing: .06em; color: var(--cyan);
+  border: 1px solid rgba(158,231,160,.3); background: rgba(78,180,90,.1);
+  padding: 5px 12px; border-radius: 999px;
+}
+.online i { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: pulse 2.2s infinite; }
+@keyframes pulse { 50% { opacity: .35; } }
+
+/* ── hero ── */
+.hero { padding: 54px 0 30px; text-align: center; position: relative; }
+.hero .eyebrow {
+  display: inline-flex; gap: 8px; align-items: center; font-family: var(--mono);
+  font-size: 11px; color: var(--accent); border: 1px solid var(--border);
+  background: rgba(16,41,26,.6); padding: 6px 14px; border-radius: 999px; margin-bottom: 18px;
+}
+.hero h2 {
+  font-size: clamp(34px, 6vw, 58px); line-height: 1.05; letter-spacing: -.02em; font-weight: 700;
+}
+.hero h2 .g {
+  background: linear-gradient(100deg, #a9e46d, var(--primary) 45%, var(--wheat));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hero p.sub { max-width: 640px; margin: 16px auto 0; color: var(--dim); font-size: 15px; }
+
+/* ── the two-agent toggle ── */
+.mode-toggle {
+  display: inline-flex; padding: 5px; gap: 4px; margin-top: 26px;
+  border: 1px solid var(--border2); background: rgba(11,31,20,.75);
+  border-radius: 999px; box-shadow: var(--glow);
+}
+.mode-toggle button {
+  display: flex; align-items: center; gap: 8px; border: none; background: transparent;
+  color: var(--dim); padding: 10px 22px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 700; letter-spacing: .08em;
+  transition: all .25s cubic-bezier(.34,1.4,.64,1);
+}
+.mode-toggle button svg { width: 15px; height: 15px; }
+.mode-toggle button.active {
+  color: #07130d; background: linear-gradient(135deg, #5bad43, var(--primary));
+  box-shadow: 0 6px 22px rgba(113,200,75,.35); transform: translateY(-1px);
+}
+.mode-toggle button:not(.active):hover { color: var(--text); }
+
+/* ── section dropdown ── */
+.navrow { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 30px 0 22px; }
+.agent-chip {
+  display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600;
+  color: var(--primary); border: 1px solid var(--border2);
+  background: rgba(113,200,75,.06); padding: 9px 16px; border-radius: 12px;
+}
+.agent-chip svg { width: 15px; height: 15px; }
+.dropdown { position: relative; }
+.dd-trigger {
+  display: flex; align-items: center; gap: 10px; min-width: 240px;
+  background: rgba(22,54,33,.65); color: var(--text);
+  border: 1px solid var(--border2); border-radius: 12px; padding: 10px 16px;
+  font-size: 13.5px; font-weight: 600; transition: border-color .2s;
+}
+.dd-trigger:hover { border-color: var(--primary); }
+.dd-trigger .chev { margin-left: auto; transition: transform .25s; color: var(--muted); }
+.dropdown.open .dd-trigger .chev { transform: rotate(180deg); }
+.dd-trigger svg { width: 16px; height: 16px; }
+.dd-menu {
+  position: absolute; top: calc(100% + 8px); left: 0; min-width: 280px; z-index: 60;
+  background: rgba(11,31,20,.97); backdrop-filter: blur(16px);
+  border: 1px solid var(--border2); border-radius: 14px; padding: 6px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.5), 0 0 40px rgba(113,200,75,.12);
+  opacity: 0; transform: translateY(-6px) scale(.98); pointer-events: none;
+  transition: all .22s cubic-bezier(.34,1.3,.64,1);
+}
+.dropdown.open .dd-menu { opacity: 1; transform: none; pointer-events: auto; }
+.dd-label {
+  font-size: 9.5px; letter-spacing: .14em; font-weight: 700; color: var(--primary);
+  padding: 8px 12px 6px; text-transform: uppercase;
+}
+.dd-item {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  background: transparent; border: none; color: var(--text);
+  padding: 9px 12px; border-radius: 10px; transition: background .15s;
+}
+.dd-item:hover { background: rgba(113,200,75,.12); }
+.dd-item svg { width: 16px; height: 16px; color: var(--primary); flex: none; }
+.dd-item .t { display: flex; flex-direction: column; line-height: 1.3; }
+.dd-item .t b { font-size: 13.5px; font-weight: 600; }
+.dd-item .t span { font-size: 10.5px; color: var(--muted); }
+.dd-item .tick { margin-left: auto; color: var(--primary); width: 14px; height: 14px; opacity: 0; }
+.dd-item.active .tick { opacity: 1; }
+
+/* ── panels ── */
+main { padding-bottom: 40px; }
+.panel { display: none; animation: rise .4s cubic-bezier(.22,1,.36,1); }
+.panel.show { display: block; }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+
+.card {
+  background: rgba(16,41,26,.55); backdrop-filter: blur(18px) saturate(1.35);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 22px; box-shadow: inset 0 1px 0 rgba(238,247,223,.06), 0 18px 50px rgba(0,0,0,.35);
+  transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s;
+}
+.card:hover { transform: translateY(-3px); box-shadow: inset 0 1px 0 rgba(238,247,223,.08), 0 26px 70px rgba(0,0,0,.45), 0 0 50px rgba(113,200,75,.1); }
+.card h3 { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.card h3 svg { width: 17px; height: 17px; color: var(--primary); }
+.card .hint { font-size: 11px; color: var(--muted); font-family: var(--mono); margin-bottom: 14px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-bottom: 18px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 18px; }
+
+.stat { text-align: center; padding: 20px 12px; }
+.stat .n { font-family: var(--mono); font-size: 30px; font-weight: 700; color: var(--primary); }
+.stat .l { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+.stat.gold .n { color: var(--wheat); }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid var(--border); }
+td { padding: 11px 10px; border-bottom: 1px solid rgba(115,190,92,.08); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(113,200,75,.05); }
+
+.pill { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; letter-spacing: .04em; }
+.pill.saved { color: var(--cyan); background: rgba(158,231,160,.12); border: 1px solid rgba(158,231,160,.25); }
+.pill.applied { color: var(--wheat); background: rgba(240,198,106,.1); border: 1px solid rgba(240,198,106,.25); }
+.pill.interview { color: #c084fc; background: rgba(192,132,252,.1); border: 1px solid rgba(192,132,252,.25); }
+
+.job { display: flex; align-items: center; gap: 14px; padding: 13px 0; border-bottom: 1px solid rgba(115,190,92,.08); }
+.job:last-child { border-bottom: none; }
+.job .ico { width: 38px; height: 38px; border-radius: 10px; background: rgba(113,200,75,.1); border: 1px solid var(--border); display: grid; place-items: center; flex: none; color: var(--primary); }
+.job .ico svg { width: 17px; height: 17px; }
+.job b { font-size: 13.5px; }
+.job small { display: block; color: var(--dim); font-size: 11.5px; }
+.job .tag { margin-left: auto; flex: none; font-family: var(--mono); font-size: 10px; color: var(--accent); border: 1px solid var(--border); padding: 4px 9px; border-radius: 999px; background: rgba(16,41,26,.6); }
+
+.bar { margin: 12px 0; }
+.bar .row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; color: var(--dim); }
+.bar .track { height: 8px; border-radius: 99px; background: rgba(7,19,13,.8); border: 1px solid var(--border); overflow: hidden; }
+.bar .fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #3d9b3f, var(--primary), var(--wheat)); box-shadow: 0 0 12px rgba(113,200,75,.4); }
+
+/* terminal mock */
+.term {
+  background: rgba(7,19,13,.7); border: 1px solid var(--border); border-radius: var(--radius);
+  font-family: var(--mono); font-size: 12px; line-height: 1.8; padding: 16px 18px; position: relative; overflow: hidden;
+  box-shadow: 0 18px 50px -20px rgba(113,200,75,.25), inset 0 1px 0 rgba(255,255,255,.05);
+}
+.term::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(113,200,75,.03) 0 1px, transparent 1px 3px);
+}
+.term .p { color: var(--primary); }
+.term .c { color: var(--dim); }
+.term .ok { color: var(--cyan); }
+.term .w { color: var(--wheat); }
+.term .cur { display: inline-block; width: 8px; height: 14px; background: var(--primary); vertical-align: -2px; animation: pulse 1s infinite; }
+
+/* StackBlitz live embed */
+.sb-wrap {
+  border: 1px solid var(--border2); border-radius: var(--radius-lg); overflow: hidden;
+  background: #0d1512; box-shadow: 0 30px 80px rgba(0,0,0,.5), 0 0 60px rgba(113,200,75,.1);
+}
+.sb-bar {
+  display: flex; align-items: center; gap: 8px; padding: 10px 16px;
+  background: rgba(11,31,20,.9); border-bottom: 1px solid var(--border); font-size: 11px; color: var(--dim);
+}
+.sb-bar .dot { width: 9px; height: 9px; border-radius: 50%; }
+.sb-bar .name { font-family: var(--mono); color: var(--text); }
+#sb-embed { width: 100%; height: 540px; border: none; display: block; background: #0d1512; }
+@media (max-width: 720px) { #sb-embed { height: 420px; } }
+
+.note {
+  font-size: 11.5px; color: var(--muted); padding: 12px 16px;
+  border-left: 2px solid var(--primary); background: rgba(113,200,75,.05); border-radius: 0 10px 10px 0;
+  margin-top: 14px;
+}
+.note b { color: var(--dim); }
+
+/* ── footer ── */
+footer.site { border-top: 1px solid var(--border); background: rgba(7,19,13,.6); margin-top: 20px; }
+.fbar { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; padding: 22px 0; font-size: 12px; color: var(--muted); }
+.fbar a { color: var(--accent); }
+.fbar a:hover { color: var(--primary); }
+.fbar .sp { margin-left: auto; font-family: var(--mono); font-size: 11px; }
+kbd, .mono { font-family: var(--mono); }
+.badge {
+  font-family: var(--mono); font-size: 10.5px; color: var(--cyan);
+  border: 1px solid rgba(158,231,160,.3); border-radius: 6px; padding: 2px 8px;
+}
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true"></div>
+<div class="grid" aria-hidden="true"></div>
+
+<header class="site">
+  <div class="wrap hbar">
+    <div class="brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3c3 3.6 6 5.8 6 9.5A6 6 0 1 1 6 12.5C6 8.8 9 6.6 12 3z" fill="#71c84b"/><path d="M12 9v7" stroke="#07130d" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <h1>Entropy</h1>
+        <small>AI Agent · created by Kartheek</small>
+      </div>
+    </div>
+    <span class="online"><i></i> SYSTEM ONLINE</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- ── hero ── -->
+  <section class="hero">
+    <span class="eyebrow">⌁ two agents · one terminal · open source</span>
+    <h2>Order your hunt.<br /><span class="g">Entropy does the work.</span></h2>
+    <p class="sub">
+      An AI agent command center: a <b>Job Agent</b> that sweeps 21 live job boards and runs
+      your application pipeline, and a <b>Coding Agent</b> that writes real apps and runs them
+      live — dependencies installed, start command read from the README, preview auto-booted.
+    </p>
+    <div class="mode-toggle" role="tablist" aria-label="Agent mode">
+      <button id="btn-job" class="active" role="tab" aria-selected="true" onclick="setMode('job')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        JOB AGENT
+      </button>
+      <button id="btn-code" role="tab" aria-selected="false" onclick="setMode('coding')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg>
+        CODING AGENT
+      </button>
+    </div>
+  </section>
+
+  <!-- ── agent chip + section dropdown ── -->
+  <div class="navrow">
+    <span class="agent-chip" id="agent-chip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      <span id="agent-chip-text">Job Agent</span>
+    </span>
+    <div class="dropdown" id="dropdown">
+      <button class="dd-trigger" id="dd-trigger" onclick="toggleDropdown(event)" aria-haspopup="menu" aria-expanded="false">
+        <svg id="dd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+        <span id="dd-current">Command Center</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="dd-menu" role="menu" id="dd-menu"></div>
+    </div>
+  </div>
+
+  <main>
+    <!-- ═════════ JOB AGENT PANELS ═════════ -->
+    <section class="panel" id="p-home">
+      <div class="grid3">
+        <div class="card stat"><div class="n">16</div><div class="l">Applications</div></div>
+        <div class="card stat"><div class="n">7</div><div class="l">Active boards</div></div>
+        <div class="card stat gold"><div class="n">12d</div><div class="l">Hunt streak</div></div>
+        <div class="card stat"><div class="n">24</div><div class="l">Agent runs</div></div>
+        <div class="card stat"><div class="n">9</div><div class="l">Contacts</div></div>
+      </div>
+      <div class="card">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg> Mission</h3>
+        <p class="hint">target: ML/AI + Data + Python developer · intern &amp; entry level</p>
+        <p style="color:var(--dim);font-size:13.5px">
+          The Job Agent sweeps Naukri, LinkedIn, Internshala, Foundit and 17 more public boards
+          every morning, scores each role against the resume, files the best into the tracker,
+          and flags what needs action today — recruiter follow-ups included.
+        </p>
+        <div class="note"><b>Live site:</b> this Pages build shows the shell — the full app runs the real feeds, tracker and autopilot locally.</div>
+      </div>
+    </section>
+
+    <section class="panel" id="p-tracker">
+      <div class="card">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Application pipeline</h3>
+        <p class="hint">every logged application moves the stats · drop-down section in the app</p>
+        <table>
+          <thead><tr><th>Role</th><th>Company</th><th>Board</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>ML Intern</td><td>Sarvam AI</td><td>LinkedIn</td><td><span class="pill applied">APPLIED</span></td></tr>
+            <tr><td>Data Analyst — Fresher</td><td>Zoho</td><td>Naukri</td><td><span class="pill saved">SAVED</span></td></tr>
+            <tr><td>Python Developer</td><td>Postman</td><td>Remote OK</td><td><span class="pill interview">INTERVIEW</span></td></tr>
+            <tr><td>Applied Scientist I</td><td>Amazon</td><td>Foundit</td><td><span class="pill saved">SAVED</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="p-feeds">
+      <div class="card">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg> Daily feeds</h3>
+        <p class="hint">fresh listings across 21 public sources · every morning</p>
+        <div class="job"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div><div><b>Machine Learning Intern</b><small>Sarvam AI · Bengaluru · score 91</small></div><span class="tag">NEW</span></div>
+        <div class="job"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div><div><b>Python Backend Intern</b><small>Zoho · Chennai · score 84</small></div><span class="tag">NEW</span></div>
+        <div class="job"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div><div><b>Data Science Trainee</b><small>Tredence · Hybrid · score 78</small></div><span class="tag">TODAY</span></div>
+      </div>
+    </section>
+
+    <section class="panel" id="p-remote">
+      <div class="card">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Remote Python</h3>
+        <p class="hint">open-anywhere roles · fresher-friendly · verified board links</p>
+        <div class="job"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></div><div><b>Python Engineer — anywhere</b><small>open-anywhere · verified: remoteok.com/remote-python-jobs</small></div><span class="tag">REMOTE</span></div>
+        <div class="job"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></div><div><b>Junior Backend (Python)</b><small>worldwide · verified: weworkremotely.com</small></div><span class="tag">REMOTE</span></div>
+        <div class="job"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></div><div><b>Automation Scripting Intern</b><small>global · verified: python.org/jobs</small></div><span class="tag">REMOTE</span></div>
+      </div>
+    </section>
+
+    <section class="panel" id="p-jdmatch">
+      <div class="card">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> JD Match</h3>
+        <p class="hint">resume vs job-description scoring · gap analysis</p>
+        <div class="bar"><div class="row"><span>ML Intern — Sarvam AI</span><b class="mono" style="color:var(--primary)">91%</b></div><div class="track"><div class="fill" style="width:91%"></div></div></div>
+        <div class="bar"><div class="row"><span>Data Analyst — Zoho</span><b class="mono" style="color:var(--primary)">84%</b></div><div class="track"><div class="fill" style="width:84%"></div></div></div>
+        <div class="bar"><div class="row"><span>Applied Scientist — Amazon</span><b class="mono" style="color:var(--wheat)">67%</b></div><div class="track"><div class="fill" style="width:67%"></div></div></div>
+      </div>
+    </section>
+
+    <section class="panel" id="p-contacts">
+      <div class="card">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Recruiter book</h3>
+        <p class="hint">every contact · last touch · follow-up due</p>
+        <div class="job"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div><div><b>Priya — Talent Partner</b><small>Sarvam AI · follow-up due tomorrow</small></div><span class="tag">DUE</span></div>
+        <div class="job"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div><div><b>Rahul — Hiring Manager</b><small>Zoho · spoke last week</small></div><span class="tag">OK</span></div>
+      </div>
+    </section>
+
+    <!-- ═════════ CODING AGENT PANELS ═════════ -->
+    <section class="panel" id="p-console">
+      <div class="card" style="margin-bottom:18px">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4M6 8l-4 4 4 4"/><path d="m14.5 4-5 16"/></svg> Agent console</h3>
+        <p class="hint">goal in · plan · tools execute on the workspace · transcript streams live</p>
+        <div class="term">
+<span class="c">entropy@agent:~$</span> entropy run --kind coding "build a green dashboard with a live clock"<br>
+<span class="p">▸ plan</span> <span class="c">1. scaffold index.html  2. styles  3. clock.js  4. README</span><br>
+<span class="p">▸ fs_write</span> index.html <span class="ok">✓</span> &nbsp; <span class="p">fs_write</span> styles.css <span class="ok">✓</span> &nbsp; <span class="p">fs_write</span> clock.js <span class="ok">✓</span><br>
+<span class="p">▸ readme</span> detected start command: <span class="w">none — static site</span><br>
+<span class="p">▸ stackblitz</span> container booting · deps auto-install · preview auto-run <span class="ok">LIVE ✓</span><br>
+<span class="c">entropy@agent:~$</span> <span class="cur"></span>
+        </div>
+        <div class="note"><b>Try it:</b> clone the repo, run <span class="badge">bun install &amp;&amp; bun run dev</span>, open the AI Agent tab and type a goal — the agent codes it and the app runs in the chat.</div>
+      </div>
+    </section>
+
+    <section class="panel" id="p-live">
+      <div class="sb-wrap">
+        <div class="sb-bar">
+          <span class="dot" style="background:#71c84b"></span>
+          <span class="dot" style="background:#f0c66a"></span>
+          <span class="dot" style="background:#10291a;border:1px solid var(--border)"></span>
+          <span class="name">entropy-demo · javascript · auto-run</span>
+          <span style="margin-left:auto" class="badge">LIVE · STACKBLITZ</span>
+          <button id="sb-open" onclick="openInStackBlitz()" style="display:none;background:rgba(113,200,75,.14);border:1px solid rgba(143,211,103,.4);color:#b7df62;font-size:10px;font-weight:700;letter-spacing:.06em;padding:4px 10px;border-radius:7px">OPEN IN STACKBLITZ ↗</button>
+        </div>
+        <div id="sb-embed"></div>
+      </div>
+      <div class="note" style="border-radius:10px">
+        <b>Auto-execution:</b> this embed is the same engine the Coding Agent uses — the project boots
+        with <span class="badge">clickToLoad: false</span>, the preview starts by itself, and edits stream in live.
+        Full apps (Express, Vite, Next…) boot in WebContainers with dependencies auto-installed.
+      </div>
+    </section>
+
+    <section class="panel" id="p-studio">
+      <div class="grid2">
+        <div class="card">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg> Pages lens</h3>
+          <p class="hint">every previewable page the agent wrote</p>
+          <p style="color:var(--dim);font-size:13px">A file-tree of HTML/SVG output with FRESH badges, one click to run any page in the device-framed webview.</p>
+        </div>
+        <div class="card">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M11 18h2"/></svg> Device toolbar</h3>
+          <p class="hint">desktop · 768 · 390</p>
+          <p style="color:var(--dim);font-size:13px">Test the agent's app at laptop, tablet and phone widths instantly — no reload, live console drawer included.</p>
+        </div>
+        <div class="card">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-6-6-6M12 19h8"/></svg> Live terminal</h3>
+          <p class="hint">xterm.js · the agent's whole life streams here</p>
+          <p style="color:var(--dim);font-size:13px">Watch every tool call in real time, run guarded commands in the workspace sandbox, probe the stack with <span class="badge">status</span>.</p>
+        </div>
+        <div class="card">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg> Ports panel</h3>
+          <p class="hint">the Replit-style strip</p>
+          <p style="color:var(--dim);font-size:13px">Server-side TCP probes of the ports your agent's servers actually listen on — click through to the running app.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer class="site">
+  <div class="wrap fbar">
+    <span>Entropy · AI agent stack created by <b style="color:var(--text)">B.V.S. Kartheek</b></span>
+    <a href="https://github.com/kartheekbvs/Entropy" target="_blank" rel="noopener">github.com/kartheekbvs/Entropy</a>
+    <span class="sp">bun install · bun run dev · <span class="badge">v5.0</span></span>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/@stackblitz/sdk@1/bundles/sdk.umd.js"></script>
+<script>
+/* ── the two-agent menu: mode toggle + per-mode section dropdown ── */
+const SECTIONS = {
+  job: [
+    { id: 'home',    label: 'Command Center', hint: 'mission stats · streak', icon: '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>' },
+    { id: 'tracker', label: 'Tracker',        hint: 'application pipeline',   icon: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>' },
+    { id: 'feeds',   label: 'Daily Feeds',    hint: 'today\'s fresh listings',icon: '<path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>' },
+    { id: 'remote',  label: 'Remote Python',  hint: 'open-anywhere roles',    icon: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>' },
+    { id: 'jdmatch', label: 'JD Match',       hint: 'resume vs JD scoring',   icon: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>' },
+    { id: 'contacts',label: 'Contacts',       hint: 'recruiter book',         icon: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>' },
+  ],
+  coding: [
+    { id: 'console', label: 'Agent Console',     hint: 'chat · terminal · workspace', icon: '<path d="m18 16 4-4-4-4M6 8l-4 4 4 4"/><path d="m14.5 4-5 16"/>' },
+    { id: 'live',    label: 'Live App Preview',  hint: 'StackBlitz auto-run ▾',        icon: '<path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/>' },
+    { id: 'studio',  label: 'Preview Studio',    hint: 'pages lens · devices',         icon: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>' },
+  ],
+};
+let mode = 'job';
+let section = 'home';
+
+const menuEl = document.getElementById('dd-menu');
+const currentEl = document.getElementById('dd-current');
+const iconEl = document.getElementById('dd-icon');
+const ddEl = document.getElementById('dropdown');
+
+function renderMenu() {
+  menuEl.innerHTML = '<div class="dd-label">' + (mode === 'job' ? 'Job Agent' : 'Coding Agent') + ' · sections</div>' +
+    SECTIONS[mode].map(s =>
+      '<button class="dd-item' + (s.id === section ? ' active' : '') + '" role="menuitem" onclick="pickSection(\'' + s.id + '\')">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + s.icon + '</svg>' +
+      '<span class="t"><b>' + s.label + '</b><span>' + s.hint + '</span></span>' +
+      '<svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' +
+      '</button>').join('');
+  const s = SECTIONS[mode].find(x => x.id === section) || SECTIONS[mode][0];
+  currentEl.textContent = s.label;
+  iconEl.innerHTML = s.icon;
+}
+function showPanel() {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('show'));
+  const el = document.getElementById('p-' + section);
+  if (el) el.classList.add('show');
+  if (section === 'live') bootStackBlitz();
+}
+function pickSection(id) {
+  section = id;
+  renderMenu();
+  showPanel();
+  ddEl.classList.remove('open');
+  document.getElementById('dd-trigger').setAttribute('aria-expanded', 'false');
+}
+function toggleDropdown(e) {
+  e.stopPropagation();
+  ddEl.classList.toggle('open');
+  document.getElementById('dd-trigger').setAttribute('aria-expanded', ddEl.classList.contains('open'));
+}
+function setMode(m) {
+  mode = m;
+  document.getElementById('btn-job').classList.toggle('active', m === 'job');
+  document.getElementById('btn-code').classList.toggle('active', m === 'coding');
+  document.getElementById('btn-job').setAttribute('aria-selected', m === 'job');
+  document.getElementById('btn-code').setAttribute('aria-selected', m === 'coding');
+  document.getElementById('agent-chip-text').textContent = m === 'job' ? 'Job Agent' : 'Coding Agent';
+  section = SECTIONS[m][0].id;
+  renderMenu();
+  showPanel();
+}
+document.addEventListener('click', () => {
+  ddEl.classList.remove('open');
+  document.getElementById('dd-trigger').setAttribute('aria-expanded', 'false');
+});
+renderMenu();
+showPanel();
+
+/* ── the REAL live preview: StackBlitz SDK, auto-executed ── */
+let sbBooted = false;
+function openInStackBlitz() {
+  if (window.__sbProject && window.StackBlitzSDK) {
+    window.StackBlitzSDK.openProject(window.__sbProject, { view: 'preview' });
+  }
+}
+function bootStackBlitz() {
+  if (sbBooted || !window.StackBlitzSDK) return;
+  sbBooted = true;
+  const DEMO_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Entropy \u00b7 Demo App</title>
+<style>
+:root { --bg:#07130d; --leaf:#71c84b; --lime:#b7df62; --wheat:#f0c66a; --text:#eef7df; }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; }
+body { background:var(--bg); color:var(--text); font-family:'Space Grotesk',system-ui,-apple-system,sans-serif; overflow:hidden; }
+#field { position:fixed; inset:0; }
+main { position:relative; z-index:1; max-width:640px; padding:9vh 28px; }
+.eyebrow { font-size:11px; letter-spacing:.18em; color:var(--lime); margin-bottom:14px; }
+h1 { font-size:clamp(36px,6vw,58px); line-height:1.04; background:linear-gradient(100deg,#a9e46d,var(--leaf) 45%,var(--wheat)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.sub { color:#b7cbb2; margin:16px 0 28px; font-size:14.5px; max-width:430px; }
+.stats { display:flex; gap:12px; flex-wrap:wrap; }
+.stats div { background:rgba(16,41,26,.78); border:1px solid rgba(143,211,103,.35); border-radius:14px; padding:13px 18px; min-width:112px; }
+.stats b { font-family:ui-monospace,Menlo,monospace; font-size:20px; color:var(--leaf); display:block; }
+.stats span { font-size:9.5px; letter-spacing:.12em; color:#6f9270; text-transform:uppercase; }
+</style>
+</head>
+<body>
+  <canvas id="field"></canvas>
+  <main>
+    <p class="eyebrow">WRITTEN BY THE ENTROPY CODING AGENT</p>
+    <h1>Fields keep<br/>growing.</h1>
+    <p class="sub">This page is running live in a StackBlitz sandbox \u2014 booted automatically, no click needed.</p>
+    <div class="stats">
+      <div><b id="ticks">0</b><span>frames</span></div>
+      <div><b id="pps">0</b><span>particles</span></div>
+      <div><b id="clock">--:--:--</b><span>local time</span></div>
+    </div>
+  </main>
+<script>
+// drifting spore field \u2014 the "green farms" heartbeat
+var c = document.getElementById('field');
+var x = c.getContext('2d');
+var W, H, P = [], ticks = 0;
+function size() { W = c.width = innerWidth; H = c.height = innerHeight; }
+addEventListener('resize', size); size();
+for (var i = 0; i < 90; i++) P.push({ x: Math.random()*W, y: Math.random()*H, r: 1+Math.random()*2.4, v: .2+Math.random()*.7, p: Math.random()*Math.PI*2 });
+(function draw() {
+  x.clearRect(0,0,W,H);
+  var g = x.createRadialGradient(W*.7, H*.2, 0, W*.7, H*.2, W*.8);
+  g.addColorStop(0, 'rgba(113,200,75,.14)'); g.addColorStop(1, 'transparent');
+  x.fillStyle = g; x.fillRect(0,0,W,H);
+  for (var j = 0; j < P.length; j++) {
+    var p = P[j];
+    p.y -= p.v; p.p += .01;
+    if (p.y < -8) { p.y = H + 8; p.x = Math.random()*W; }
+    x.beginPath();
+    x.arc(p.x + Math.sin(p.p)*14, p.y, p.r, 0, 7);
+    x.fillStyle = 'rgba(183,223,98,' + (.25 + p.r*.14) + ')';
+    x.fill();
+  }
+  ticks++;
+  if (ticks % 20 === 0) {
+    document.getElementById('ticks').textContent = ticks.toLocaleString();
+    document.getElementById('pps').textContent = P.length;
+    document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+  }
+  requestAnimationFrame(draw);
+})();
+<\/script>
+</body>
+</html>`;
+  window.__sbProject = {
+    title: 'Entropy Demo — agent-built',
+    description: 'A tiny app the Entropy coding agent style: green, live, auto-run.',
+    template: 'javascript',
+    files: { 'index.html': DEMO_HTML },
+  };
+  const openBtn = document.getElementById('sb-open');
+  if (openBtn) openBtn.style.display = 'inline-block';
+  window.StackBlitzSDK.embedProject(
+    'sb-embed',
+    window.__sbProject,
+    { clickToLoad: false, view: 'preview', hideExplorer: true, hideNavigation: true, hideDevTools: true, openFile: 'index.html', height: '100%' }
+  ).catch(err => {
+    document.getElementById('sb-embed').innerHTML =
+      '<div style="padding:30px;color:#b7cbb2;font:13px system-ui">StackBlitz failed to boot (offline?) — the app itself still works.</div>';
+    sbBooted = false;
+  });
+}
+</script>
+</body>
+</html>

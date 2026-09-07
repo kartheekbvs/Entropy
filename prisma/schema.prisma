@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Application {
+  id         String    @id @default(cuid())
+  company    String
+  role       String
+  source     String    @default("other") // naukri | linkedin | internshala | foundit | google | referral | other
+  jobUrl     String?
+  location   String?
+  salary     String?
+  status     String    @default("saved") // saved | applied | assessment | interview | offer | rejected | withdrawn
+  notes      String?
+  appliedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Contact {
+  id            String    @id @default(cuid())
+  name          String
+  company       String?
+  role          String? // HR | Recruiter | Engineer | Manager | Other
+  email         String?
+  phone         String?
+  linkedin      String?
+  notes         String?
+  lastContactAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// One row per autonomous agent execution, with the full live transcript
+model AgentRun {
+  id         String    @id @default(cuid())
+  goal       String
+  mode       String    @default("manual") // manual | autopilot
+  status     String    @default("running") // running | completed | failed
+  provider   String? // gemini | zai
+  steps      String    @default("[]") // JSON array of transcript steps
+  result     String?
+  stepCount  Int       @default(0)
+  tokensUsed Int       @default(0)
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+}
+
+// Singleton row (id = "singleton") holding autopilot configuration
+model AgentSetting {
+  id               String    @id @default("singleton")
+  autopilotEnabled Boolean   @default(false)
+  intervalMinutes  Int       @default(120)
+  goalsTemplate    String    @default("Run the daily pipeline: search fresh jobs for my profile (ML/AI + Python, intern/entry, India cities + remote), score them, add the best new ones to my tracker as saved with match scores and why-they-fit notes, and flag any that need action today.")
+  lastRunAt        DateTime?
+  updatedAt        DateTime  @updatedAt
+}

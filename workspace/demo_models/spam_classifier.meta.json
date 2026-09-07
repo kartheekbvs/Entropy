@@ -1,0 +1,21 @@
+{
+  "name": "Spam Classifier",
+  "version": "1.0.0",
+  "task_type": "classification",
+  "class_labels": [
+    "HAM",
+    "SPAM"
+  ],
+  "feature_count": 5000,
+  "algorithm": "TF-IDF + Multinomial Naive Bayes",
+  "accuracy": 1.0,
+  "training_samples": 100,
+  "input_example": "List of text strings, e.g. [\"Hello world\", \"FREE MONEY CLICK HERE\"]",
+  "output_example": {
+    "prediction": "SPAM",
+    "raw": [
+      1
+    ],
+    "task_type": "classification"
+  }
+}

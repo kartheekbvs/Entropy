@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="ModelForge — turn trained ML models into production APIs in seconds. Upload a .pkl, get an API key, serve real-time predictions." />
+  <title>ModelForge — ML Model Hosting Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+
+  <!-- ── Navigation ──────────────────────────────────────────────────────────── -->
+  <nav class="mf-nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo" aria-label="ModelForge home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <path d="M14 2L26 8V20L14 26L2 20V8L14 2Z" stroke="url(#lg)" stroke-width="2" fill="none"/>
+          <circle cx="14" cy="14" r="4" fill="url(#lg2)"/>
+          <defs>
+            <linearGradient id="lg" x1="2" y1="2" x2="26" y2="26">
+              <stop offset="0%" stop-color="#71c84b"/><stop offset="100%" stop-color="#3d9b3f"/>
+            </linearGradient>
+            <linearGradient id="lg2" x1="10" y1="10" x2="18" y2="18">
+              <stop offset="0%" stop-color="#b7df62"/><stop offset="100%" stop-color="#f0c66a"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span>ModelForge</span>
+      </a>
+      <div class="nav-links">
+        <a href="/#features">Features</a>
+        <a href="/#how-it-works">How It Works</a>
+        <a href="/dashboard.html">Dashboard</a>
+      </div>
+      <div class="nav-actions">
+        <span class="ws-status" id="ws-status" data-state="offline" title="Realtime WebSocket channel">
+          <span class="ws-dot"></span><span class="ws-label">Offline</span>
+        </span>
+        <a href="/upload.html" class="btn btn-outline">Upload Model</a>
+        <a href="/docs" target="_blank" rel="noopener" class="btn btn-primary">API Docs</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Scroll Progress Bar ─────────────────────────────────────────────────── -->
+  <div class="scroll-progress"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       HERO — cinematic opening: pinned scene, camera push-in, code window
+  ════════════════════════════════════════════════════════════════════════ -->
+  <section class="hero-section" id="hero">
+    <!-- Layered cinematic field (scrubbed by scroll) -->
+    <div class="cinematic-scene" aria-hidden="true">
+      <div class="field-horizon"></div>
+      <div class="field-sun"></div>
+      <div class="field-mist"></div>
+      <div class="field-grass"></div>
+    </div>
+
+    <!-- Animated perspective grid -->
+    <div class="hero-grid" aria-hidden="true"></div>
+
+    <!-- Floating particles (injected by main.js) -->
+    <div class="particles" id="particles" aria-hidden="true"></div>
+
+    <!-- Hero copy -->
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        ML models → production APIs, in seconds
+      </div>
+
+      <h1 class="hero-title">
+        <span class="title-line">Forge your models</span>
+        <span class="title-line gradient-text">into living APIs</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        Upload a trained <code>.pkl</code>, get a scoped API key, and serve
+        sub-10ms predictions — with a live dashboard and real-time telemetry
+        streaming over WebSocket.
+      </p>
+
+      <div class="hero-cta">
+        <a href="/upload.html" class="btn btn-primary btn-lg">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+          </svg>
+          Deploy a Model
+        </a>
+        <a href="/#demo" class="btn btn-ghost btn-lg">
+          Try the Live Demo
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
+          </svg>
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-number" data-count="10">0</span><span class="stat-unit">ms</span>
+          <span class="stat-label">Warm Latency</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number" data-count="99.9">0</span><span class="stat-unit">%</span>
+          <span class="stat-label">Typed Errors</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number" data-count="1">0</span><span class="stat-unit">file</span>
+          <span class="stat-label">To Production</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero code window -->
+    <div class="hero-code">
+      <div class="code-window">
+        <div class="code-titlebar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="code-filename">predict.sh</span>
+        </div>
+        <div class="code-body"><pre><code><span class="c-comment"># 1 — upload once</span>
+curl -F <span class="c-str">"file=@model.pkl"</span> <span class="c-fn">\</span>
+     -F <span class="c-str">"name=spam-classifier"</span> <span class="c-fn">\</span>
+     localhost:4500<span class="c-keyword">/api/upload</span>
+
+<span class="c-comment"># 2 — predict forever</span>
+curl -X POST localhost:4500<span class="c-keyword">/api/predict/$MODEL_ID</span> <span class="c-fn">\</span>
+     -H <span class="c-str">"X-API-Key: mf_…"</span> <span class="c-fn">\</span>
+     -H <span class="c-str">"Content-Type: application/json"</span> <span class="c-fn">\</span>
+     -d <span class="c-str">'{"data": ["Free iPhone, click now!"]}'</span>
+
+<span class="c-comment">→ {"prediction": "spam", "latency_ms": 3.8}</span></code></pre></div>
+      </div>
+    </div>
+
+    <!-- Message revealed by the pinned scroll timeline -->
+    <div class="field-message">
+      <span class="field-message-label">The forge is hot</span>
+      <strong>Every upload becomes an API.</strong>
+    </div>
+
+    <div class="scroll-indicator" id="scroll-indicator">
+      <span>Scroll to explore</span>
+      <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       PROBLEM — why raw notebooks don't survive production
+  ════════════════════════════════════════════════════════════════════════ -->
+  <section class="problem-section" id="problem">
+    <div class="section-inner">
+      <div class="section-label reveal-item">The Challenge</div>
+      <h2 class="section-title reveal-item">
+        Great models die<br/>in Jupyter notebooks
+      </h2>
+
+      <div class="pain-grid">
+        <div class="pain-card reveal-card" style="--delay:0">
+          <div class="pain-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+          </div>
+          <h3>DevOps Overhead</h3>
+          <p>Deploying one estimator means containers, load balancers, CI/CD and TLS — a week of plumbing before the first prediction.</p>
+        </div>
+
+        <div class="pain-card reveal-card" style="--delay:1">
+          <div class="pain-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="M12 8v4M12 16h.01"/>
+            </svg>
+          </div>
+          <h3>Unprotected Endpoints</h3>
+          <p>A raw Flask route exposes your model to the open internet — no keys, no rate limits, no audit trail of who predicted what.</p>
+        </div>
+
+        <div class="pain-card reveal-card" style="--delay:2">
+          <div class="pain-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <h3>Weeks to First Request</h3>
+          <p>Data scientists train in hours, then wait weeks for a platform team to serve the model. Momentum dies in the queue.</p>
+        </div>
+
+        <div class="pain-card reveal-card" style="--delay:3">
+          <div class="pain-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </div>
+          <h3>Zero Observability</h3>
+          <p>No latency percentiles, no error rates, no request logs. When predictions degrade, you find out from users — not metrics.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       SOLUTION
+  ════════════════════════════════════════════════════════════════════════ -->
+  <section class="solution-section" id="solution">
+    <div class="solution-bg-gradient"></div>
+    <div class="section-inner">
+      <div class="section-label reveal-item">The Solution</div>
+      <h2 class="section-title reveal-item">
+        One platform.<br/><span class="gradient-text">Every prediction.</span>
+      </h2>
+      <p class="section-desc reveal-item">
+        ModelForge is the shortest path from a pickled estimator to a secured,
+        observable, real-time API — upload, key, predict, done.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       FEATURES
+  ════════════════════════════════════════════════════════════════════════ -->
+  <section class="features-section" id="features">
+    <div class="section-inner">
+      <div class="section-label reveal-item">Features</div>
+      <h2 class="section-title reveal-item">Production hardening, <span class="gradient-text">built in</span></h2>
+
+      <div class="features-grid">
+        <div class="feature-card reveal-card" style="--delay:0">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>
+          </div>
+          <h3>Scoped API Keys</h3>
+          <p>CSPRNG <code>mf_</code> secrets with predict / batch / analytics scopes, revocation, per-key request counters and rate limits.</p>
+          <div class="feature-tag">Secure by default</div>
+        </div>
+
+        <div class="feature-card reveal-card" style="--delay:1">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </div>
+          <h3>Real-time Telemetry</h3>
+          <p>Every upload, key change and prediction is streamed to all dashboards over a WebSocket with lossless reconnect replay.</p>
+          <div class="feature-tag">WebSocket /ws</div>
+        </div>
+
+        <div class="feature-card reveal-card" style="--delay:2">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+            </svg>
+          </div>
+          <h3>Live Dashboard</h3>
+          <p>Request counts, average latency, prediction logs and key usage — updating the instant an event happens, not on a poll timer.</p>
+          <div class="feature-tag">Analytics</div>
+        </div>
+
+        <div class="feature-card reveal-card" style="--delay:3">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/>
+            </svg>
+          </div>
+          <h3>Any sklearn Pipeline</h3>
+          <p>Classifiers, regressors, clusters, Tfidf text pipelines — task type auto-detected, inputs auto-adapted, outputs JSON-safe.</p>
+          <div class="feature-tag">Versatile</div>
+        </div>
+
+        <div class="feature-card reveal-card" style="--delay:4">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+          </div>
+          <h3>Validated Uploads</h3>
+          <p>Artifacts are deserialized and smoke-checked before they enter the catalog — invalid files never reach an endpoint. Atomic writes, no half-states.</p>
+          <div class="feature-tag">Fail fast</div>
+        </div>
+
+        <div class="feature-card reveal-card" style="--delay:5">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+            </svg>
+          </div>
+          <h3>Typed Error Contract</h3>
+          <p>Every failure returns <code>{"error":{"code","message","request_id"}}</code> with request correlation — plus auto-generated OpenAPI docs.</p>
+          <div class="feature-tag">OpenAPI 3.1</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       HOW IT WORKS
+  ════════════════════════════════════════════════════════════════════════ -->
+  <section class="how-section" id="how-it-works">
+    <div class="section-inner">
+      <div class="section-label reveal-item">How It Works</div>
+      <h2 class="section-title reveal-item">Three calls from <span class="gradient-text">notebook to production</span></h2>
+
+      <div class="steps-container">
+        <div class="step-item reveal-card" style="--delay:0">
+          <div class="step-number">01</div>
+          <div class="step-connector"></div>
+          <div class="step-content">
+            <div class="step-icon">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+              </svg>
+            </div>
+            <h3>Upload Your Model</h3>
+            <p>Drop a trained <code>.pkl</code> artifact. It is deserialized, validated, task-detected and cached warm — a default API key is minted automatically.</p>
+            <div class="step-code">
+              <pre><code>POST /api/upload
+  name: "spam-classifier"
+  file: model.pkl</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-item reveal-card" style="--delay:1">
+          <div class="step-number">02</div>
+          <div class="step-connector"></div>
+          <div class="step-content">
+            <div class="step-icon">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+              </svg>
+            </div>
+            <h3>Scope Your Keys</h3>
+            <p>Generate purpose-scoped keys — one for production, one for batch jobs, one read-only for analytics. Revoke instantly when a key leaks.</p>
+            <div class="step-code">
+              <pre><code>POST /api/keys
+  → { "key": "mf_a1b2c3..." }</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-item reveal-card" style="--delay:2">
+          <div class="step-number">03</div>
+          <div class="step-content">
+            <div class="step-icon">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+            </div>
+            <h3>Predict &amp; Watch Live</h3>
+            <p>Send any input shape; get predictions with latency telemetry. The dashboard updates over WebSocket the same millisecond you get the response.</p>
+            <div class="step-code">
+              <pre><code>POST /api/predict/{model_id}
+  X-API-Key: mf_a1b2c3...
+  { "data": [...] }
+  → { "prediction": ..., "latency_ms": 3.8 }</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       LIVE DEMO CONSOLE
+  ════════════════════════════════════════════════════════════════════════ -->
+  <section class="demo-section" id="demo">
+    <div class="section-inner">
+      <div class="section-label reveal-item">Live Demo</div>
+      <h2 class="section-title reveal-item">Try it <span class="gradient-text">right now</span></h2>
+      <p class="section-desc reveal-item">
+        This console talks to the bundled spam classifier served by this very
+        instance. Enter any message and watch the prediction — with live latency.
+      </p>
+
+      <div class="demo-console reveal-item">
+        <div class="demo-window">
+          <div class="demo-header">
+            <div class="demo-dots">
+              <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+            </div>
+            <span class="demo-title">ModelForge API — Live Test Console</span>
+            <span class="demo-badge">LIVE</span>
+          </div>
+
+          <div class="demo-body">
+            <div class="demo-input-area">
+              <label for="demo-text">Enter text to classify:</label>
+              <textarea id="demo-text" rows="3" placeholder="Type a message... e.g. 'Congratulations! You won a free iPhone!'" spellcheck="false">Congratulations! You won a free iPhone. Click here to claim your prize now!</textarea>
+              <div class="demo-controls">
+                <div class="demo-key-display">
+                  <span class="key-label">API Key:</span>
+                  <code id="demo-key-display" class="key-value">auto-detected</code>
+                </div>
+                <button class="btn btn-primary" id="demo-run-btn" onclick="runDemo()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                  </svg>
+                  Run Prediction
+                </button>
+              </div>
+            </div>
+
+            <div class="demo-output" id="demo-output">
+              <div class="demo-output-placeholder">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+                </svg>
+                <p>Hit "Run Prediction" to see results</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       CTA
+  ════════════════════════════════════════════════════════════════════════ -->
+  <section class="cta-section" id="cta">
+    <div class="cta-bg"></div>
+    <div class="section-inner">
+      <div class="cta-content reveal-item">
+        <h2>Ready to <span class="gradient-text">forge your first API</span>?</h2>
+        <p>Upload a model today. Free, self-hosted, MIT-licensed — your data never leaves your machine.</p>
+        <div class="cta-buttons">
+          <a href="/upload.html" class="btn btn-primary btn-lg">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+            </svg>
+            Upload a Model
+          </a>
+          <a href="/dashboard.html" class="btn btn-outline btn-lg">View Dashboard</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ──────────────────────────────────────────────────────────────── -->
+  <footer class="mf-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+          <path d="M14 2L26 8V20L14 26L2 20V8L14 2Z" stroke="url(#fg)" stroke-width="2" fill="none"/>
+          <circle cx="14" cy="14" r="4" fill="url(#fg2)"/>
+          <defs>
+            <linearGradient id="fg" x1="2" y1="2" x2="26" y2="26">
+              <stop offset="0%" stop-color="#71c84b"/><stop offset="100%" stop-color="#3d9b3f"/>
+            </linearGradient>
+            <linearGradient id="fg2" x1="10" y1="10" x2="18" y2="18">
+              <stop offset="0%" stop-color="#b7df62"/><stop offset="100%" stop-color="#f0c66a"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span>ModelForge</span>
+      </div>
+      <p class="footer-copy">Built for data scientists and ML engineers. v2.0 — production release.</p>
+      <div class="footer-links">
+        <a href="/docs">API Docs</a>
+        <a href="/upload.html">Upload</a>
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="https://github.com/modelforge/modelforge" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/realtime.js"></script>
+  <script src="/static/main.js"></script>
+</body>
+</html>

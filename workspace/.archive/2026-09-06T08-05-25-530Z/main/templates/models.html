@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Models · ML Model Hub{% endblock %}
+{% block content %}
+<h1>Models</h1>
+<p class="muted">Browse all uploaded models. Use HTMX to refresh the list after uploads.</p>
+<div id="model-list" hx-get="/api/models" hx-trigger="load" hx-swap="outerHTML">
+  <p class="muted">Loading models…</p>
+</div>
+{% endblock %}

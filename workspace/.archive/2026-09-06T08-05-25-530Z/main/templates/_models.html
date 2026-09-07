@@ -1,0 +1,19 @@
+<div id="model-list">
+  {% if models %}
+    <div class="model-grid">
+      {% for m in models %}
+      <div class="model-card">
+        <h3>{{ m.name }}</h3>
+        <p class="muted small">{{ m.filename }} · {{ (m.size / 1024 / 1024) | round(2) }} MB</p>
+        <p>{{ m.description or 'No description provided.' }}</p>
+        <div class="tags">
+          {% for t in m.tags %}<span class="tag">{{ t }}</span>{% endfor %}
+        </div>
+        <p class="small">Uploaded: {{ m.uploaded }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted">No models uploaded yet. <a href="/upload">Upload one</a>.</p>
+  {% endif %}
+</div>

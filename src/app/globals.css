@@ -1,0 +1,412 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   v5.0 "VERDANT FARMS — CINEMATIC" THEME  (Entropy)
+   ModelForge-inspired: deep forest-black base, leaf-green primary,
+   lime + wheat-gold harvest accents, glassmorphism surfaces with
+   backdrop blur, 3D layered depth, an animated green-farm aurora
+   and a cinematic film-grain + vignette layer.
+   Replaces the v3.7–v4.9 pink neon palette.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --radius: 0.75rem;
+  /* deep forest floor (#07130d → #0b1f14) */
+  --background: oklch(0.17 0.035 152);
+  --foreground: oklch(0.96 0.03 125);
+  --card: oklch(0.27 0.06 150 / 55%);
+  --card-foreground: oklch(0.96 0.03 125);
+  --popover: oklch(0.23 0.055 150 / 88%);
+  --popover-foreground: oklch(0.96 0.03 125);
+  /* leaf green #71c84b */
+  --primary: oklch(0.77 0.19 142);
+  --primary-foreground: oklch(0.17 0.05 150);
+  --secondary: oklch(0.32 0.065 150 / 70%);
+  --secondary-foreground: oklch(0.92 0.03 125);
+  --muted: oklch(0.29 0.05 150 / 65%);
+  --muted-foreground: oklch(0.74 0.04 138);
+  --accent: oklch(0.38 0.09 140 / 75%);
+  --accent-foreground: oklch(0.96 0.04 120);
+  --destructive: oklch(0.62 0.2 25);
+  --border: oklch(0.55 0.11 142 / 40%);
+  --input: oklch(0.48 0.1 142 / 55%);
+  --ring: oklch(0.77 0.19 142);
+  /* harvest charts: leaf · emerald · wheat · lime · spring-water */
+  --chart-1: oklch(0.77 0.19 142);
+  --chart-2: oklch(0.7 0.15 160);
+  --chart-3: oklch(0.84 0.13 90);
+  --chart-4: oklch(0.87 0.16 118);
+  --chart-5: oklch(0.78 0.1 175);
+  --sidebar: oklch(0.22 0.045 152 / 70%);
+  --sidebar-foreground: oklch(0.96 0.03 125);
+  --sidebar-primary: oklch(0.77 0.19 142);
+  --sidebar-primary-foreground: oklch(0.17 0.05 150);
+  --sidebar-accent: oklch(0.35 0.08 145 / 70%);
+  --sidebar-accent-foreground: oklch(0.96 0.03 125);
+  --sidebar-border: oklch(0.55 0.11 142 / 40%);
+  --sidebar-ring: oklch(0.77 0.19 142);
+  --terminal-green: oklch(0.86 0.15 150);
+  --terminal-red: oklch(0.68 0.2 22);
+  --terminal-amber: oklch(0.84 0.13 90);
+  /* legacy var names kept for compatibility — now verdant glows */
+  --glow-pink: oklch(0.77 0.19 142 / 35%);
+  --glow-magenta: oklch(0.84 0.13 90 / 26%);
+}
+
+.dark {
+  --background: oklch(0.17 0.035 152);
+  --foreground: oklch(0.96 0.03 125);
+  --card: oklch(0.27 0.06 150 / 55%);
+  --card-foreground: oklch(0.96 0.03 125);
+  --popover: oklch(0.23 0.055 150 / 88%);
+  --popover-foreground: oklch(0.96 0.03 125);
+  --primary: oklch(0.77 0.19 142);
+  --primary-foreground: oklch(0.17 0.05 150);
+  --secondary: oklch(0.32 0.065 150 / 70%);
+  --secondary-foreground: oklch(0.92 0.03 125);
+  --muted: oklch(0.29 0.05 150 / 65%);
+  --muted-foreground: oklch(0.74 0.04 138);
+  --accent: oklch(0.38 0.09 140 / 75%);
+  --accent-foreground: oklch(0.96 0.04 120);
+  --destructive: oklch(0.62 0.2 25);
+  --border: oklch(0.55 0.11 142 / 40%);
+  --input: oklch(0.48 0.1 142 / 55%);
+  --ring: oklch(0.77 0.19 142);
+  --chart-1: oklch(0.77 0.19 142);
+  --chart-2: oklch(0.7 0.15 160);
+  --chart-3: oklch(0.84 0.13 90);
+  --chart-4: oklch(0.87 0.16 118);
+  --chart-5: oklch(0.78 0.1 175);
+  --sidebar: oklch(0.22 0.045 152 / 70%);
+  --sidebar-foreground: oklch(0.96 0.03 125);
+  --sidebar-primary: oklch(0.77 0.19 142);
+  --sidebar-primary-foreground: oklch(0.17 0.05 150);
+  --sidebar-accent: oklch(0.35 0.08 145 / 70%);
+  --sidebar-accent-foreground: oklch(0.96 0.03 125);
+  --sidebar-border: oklch(0.55 0.11 142 / 40%);
+  --sidebar-ring: oklch(0.77 0.19 142);
+  --terminal-green: oklch(0.86 0.15 150);
+  --terminal-red: oklch(0.68 0.2 22);
+  --terminal-amber: oklch(0.84 0.13 90);
+  --glow-pink: oklch(0.77 0.19 142 / 35%);
+  --glow-magenta: oklch(0.84 0.13 90 / 26%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* ── GLASSMORPHISM — every card surface becomes translucent glass.
+   Tailwind's bg-card / bg-popover / bg-secondary utilities set the
+   (already alpha-bearing) color; these companion rules add the blur,
+   saturation, inner highlight and verdant depth that make it GLASS. ── */
+.bg-card,
+.bg-popover,
+.bg-sidebar {
+  backdrop-filter: blur(18px) saturate(1.35);
+  -webkit-backdrop-filter: blur(18px) saturate(1.35);
+}
+.bg-card {
+  box-shadow:
+    inset 0 1px 0 oklch(0.96 0.05 125 / 8%),
+    0 10px 36px oklch(0.45 0.14 145 / 16%),
+    0 2px 8px oklch(0.2 0.05 152 / 35%);
+}
+
+/* Explicit glass panel (explorer, mission control) */
+.glass-panel {
+  background: oklch(0.24 0.055 150 / 48%);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid oklch(0.78 0.17 142 / 20%);
+  box-shadow:
+    inset 0 1px 0 oklch(0.96 0.05 125 / 10%),
+    0 14px 44px oklch(0.45 0.14 145 / 18%);
+}
+
+/* 3D interactive tilt — used on the mission-control card & explorer */
+.tilt-3d {
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s ease;
+  transform-style: preserve-3d;
+}
+.tilt-3d:hover {
+  transform: perspective(1100px) rotateX(1.2deg) rotateY(-1.4deg) translateY(-3px);
+  box-shadow:
+    inset 0 1px 0 oklch(0.96 0.05 125 / 12%),
+    0 22px 60px oklch(0.55 0.16 145 / 26%),
+    0 4px 12px oklch(0.2 0.05 152 / 4%);
+}
+
+/* Verdant glow for live/running elements (legacy class name, green heart) */
+.glow-pink,
+.glow-verdant {
+  box-shadow: 0 0 0 1px oklch(0.77 0.19 142 / 35%), 0 0 18px var(--glow-pink), 0 0 42px var(--glow-magenta);
+}
+
+/* Gradient text (logos / big numbers) — leaf → lime → wheat harvest */
+.gradient-text-pink,
+.gradient-text-verdant {
+  background: linear-gradient(100deg, oklch(0.87 0.16 118), oklch(0.77 0.19 142) 45%, oklch(0.84 0.13 90));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ── ANIMATED FARM AURORA + CINEMATIC FILM LAYER ────────────────
+   Fixed layer behind everything: three drifting leaf/lime/wheat
+   radial glows over the forest floor, plus a vignette + film grain
+   for the cinematic ModelForge feel. Pure CSS, GPU-friendly. ── */
+.aurora-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(52% 44% at 18% 12%, oklch(0.5 0.15 150 / 20%), transparent 70%),
+    radial-gradient(45% 40% at 82% 20%, oklch(0.45 0.12 175 / 15%), transparent 70%),
+    radial-gradient(60% 52% at 55% 92%, oklch(0.55 0.12 95 / 12%), transparent 72%),
+    radial-gradient(38% 34% at 92% 78%, oklch(0.55 0.14 118 / 12%), transparent 70%);
+  animation: aurora-drift 26s ease-in-out infinite alternate;
+}
+/* cinematic vignette + film grain over the aurora */
+.aurora-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 40%, transparent 55%, oklch(0.1 0.03 152 / 55%) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: auto, 160px 160px;
+  opacity: 0.55;
+  mix-blend-mode: soft-light;
+}
+@keyframes aurora-drift {
+  0% {
+    background-position: 0% 0%, 100% 0%, 50% 100%, 100% 100%;
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    filter: hue-rotate(10deg);
+  }
+  100% {
+    background-position: 14% 8%, 88% 12%, 42% 96%, 96% 88%;
+    filter: hue-rotate(16deg);
+  }
+}
+
+/* ── Command-center terminal styling (verdant grid) ─────────── */
+
+.terminal-grid {
+  background-image:
+    linear-gradient(to right, oklch(0.77 0.19 142 / 5%) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(0.77 0.19 142 / 5%) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.stat-number {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.microlabel {
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Slim leaf-green scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.6 0.14 145 / 55%) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: oklch(0.6 0.14 145 / 55%);
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.72 0.17 142 / 75%);
+}
+
+/* ── Animations ─────────────────────────────────────────────── */
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+.live-dot {
+  animation: pulse-glow 2.2s ease-in-out infinite;
+}
+
+/* Shimmer sweep — NEW badges, running chips, load surfaces */
+@keyframes shimmer-sweep {
+  0% {
+    background-position: -180% 0;
+  }
+  100% {
+    background-position: 180% 0;
+  }
+}
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 42%, oklch(0.96 0.06 120 / 28%) 50%, transparent 58%);
+  background-size: 220% 100%;
+  animation: shimmer-sweep 2.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Running chip — animated leaf-green conic edge */
+@keyframes border-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+.running-ring {
+  position: relative;
+}
+.running-ring::before {
+  content: "";
+  position: absolute;
+  inset: -1.5px;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--spin, 0deg),
+    oklch(0.77 0.19 142 / 90%),
+    oklch(0.84 0.13 90 / 30%),
+    oklch(0.77 0.19 142 / 90%)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: border-spin 2.8s linear infinite;
+  pointer-events: none;
+}
+
+/* Soft float for hero elements */
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+.float-y {
+  animation: float-y 5s ease-in-out infinite;
+}
+
+/* Respect users who prefer less motion */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-bg,
+  .shimmer::after,
+  .running-ring::before,
+  .float-y,
+  .live-dot {
+    animation: none;
+  }
+  .tilt-3d:hover {
+    transform: none;
+  }
+}
+
+/* ── v4.0 LIVE TERMINAL (xterm.js) — verdant glass console ─────── */
+.terminal-frame {
+  position: relative;
+  /* soft inner glow + scanline texture, matches the farm-aurora scene */
+  box-shadow:
+    0 18px 50px -20px rgba(113, 200, 75, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.terminal-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(113, 200, 75, 0.028) 0px,
+    rgba(113, 200, 75, 0.028) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: screen;
+}
+.terminal-frame .xterm {
+  height: 100%;
+  padding: 6px 4px;
+}
+.terminal-frame .xterm-viewport {
+  /* leaf-green scrollbar to match the app */
+  scrollbar-color: rgba(113, 200, 75, 0.45) transparent;
+  scrollbar-width: thin;
+}
+.terminal-frame .xterm-screen {
+  caret-color: #71c84b;
+}

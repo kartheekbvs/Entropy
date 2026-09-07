@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Upload · ML Model Hub{% endblock %}
+{% block content %}
+<h1>Upload a Model</h1>
+<p class="muted">Provide model name, tags, a description and the model file. Uploads are stored locally under <code>main/uploads/</code>.</p>
+<form hx-post="/api/upload" hx-target="#model-list" hx-swap="outerHTML" enctype="multipart/form-data" class="upload-form">
+  <label>Model name
+    <input type="text" name="name" placeholder="e.g. bert-sentiment" required />
+  </label>
+  <label>Tags (comma separated)
+    <input type="text" name="tags" placeholder="nlp, transformer, sentiment" />
+  </label>
+  <label>Description
+    <textarea name="description" rows="3" placeholder="Short description of the model..."></textarea>
+  </label>
+  <label>Model file
+    <input type="file" name="model_file" required />
+  </label>
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">Upload Model</button>
+  </div>
+</form>
+
+<h2 style="margin-top:2.5rem">Recently uploaded</h2>
+<div id="model-list" hx-get="/api/models" hx-trigger="load" hx-swap="outerHTML">
+  <p class="muted">Loading models…</p>
+</div>
+{% endblock %}

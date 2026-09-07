@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Manage ModelForge API keys — create, inspect and revoke per-model keys." />
+  <title>API Keys — ModelForge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <nav class="mf-nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo" aria-label="ModelForge home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <path d="M14 2L26 8V20L14 26L2 20V8L14 2Z" stroke="url(#lg)" stroke-width="2" fill="none"/>
+          <circle cx="14" cy="14" r="4" fill="url(#lg2)"/>
+          <defs>
+            <linearGradient id="lg" x1="2" y1="2" x2="26" y2="26">
+              <stop offset="0%" stop-color="#71c84b"/><stop offset="100%" stop-color="#3d9b3f"/>
+            </linearGradient>
+            <linearGradient id="lg2" x1="10" y1="10" x2="18" y2="18">
+              <stop offset="0%" stop-color="#b7df62"/><stop offset="100%" stop-color="#f0c66a"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span>ModelForge</span>
+      </a>
+      <div class="nav-links">
+        <a href="/#features">Features</a>
+        <a href="/#how-it-works">How It Works</a>
+        <a href="/dashboard.html">Dashboard</a>
+      </div>
+      <div class="nav-actions">
+        <span class="ws-status" id="ws-status" data-state="offline" title="Realtime WebSocket channel">
+          <span class="ws-dot"></span><span class="ws-label">Offline</span>
+        </span>
+        <a href="/upload.html" class="btn btn-outline">Upload Model</a>
+        <a href="/docs" target="_blank" rel="noopener" class="btn btn-primary">API Docs</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="scroll-progress"></div>
+
+  <div class="page-container">
+    <div class="page-header">
+      <h1 class="page-title">API Keys</h1>
+      <p class="page-subtitle">Scope, rotate and revoke keys per model — every change is broadcast live.</p>
+    </div>
+
+    <div id="apikeys-app">
+      <div class="empty-state">
+        <div class="spinner" style="margin:0 auto 16px;border-top-color:var(--primary)"></div>
+        <h3>Loading keys...</h3>
+      </div>
+    </div>
+  </div>
+
+  <footer class="mf-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+          <path d="M14 2L26 8V20L14 26L2 20V8L14 2Z" stroke="url(#fg)" stroke-width="2" fill="none"/>
+          <circle cx="14" cy="14" r="4" fill="url(#fg2)"/>
+          <defs>
+            <linearGradient id="fg" x1="2" y1="2" x2="26" y2="26">
+              <stop offset="0%" stop-color="#71c84b"/><stop offset="100%" stop-color="#3d9b3f"/>
+            </linearGradient>
+            <linearGradient id="fg2" x1="10" y1="10" x2="18" y2="18">
+              <stop offset="0%" stop-color="#b7df62"/><stop offset="100%" stop-color="#f0c66a"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span>ModelForge</span>
+      </div>
+      <p class="footer-copy">ML Model Hosting Platform — v2.0</p>
+      <div class="footer-links">
+        <a href="/">Landing</a>
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/upload.html">Upload</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/realtime.js"></script>
+  <script src="/static/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Home · ML Model Hub{% endblock %}
+{% block content %}
+<div class="hero">
+  <h1>Upload & Share ML Models</h1>
+  <p>A lightweight hub to upload your models — inspired by Hugging Face and Kaggle. Hugging Face and Kaggle style sharing, all stored locally.</p>
+  <div class="hero-actions">
+    <a href="/upload" class="btn btn-primary">⬆ Upload a Model</a>
+    <a href="/models" class="btn btn-ghost">Browse Models</a>
+  </div>
+</div>
+<div class="feature-grid">
+  <div class="card">
+    <h3>🤗 Hugging Face style</h3>
+    <p>Upload model files with metadata, tags and descriptions, just like on the Hub.</p>
+  </div>
+  <div class="card">
+    <h3>🏆 Kaggle style</h3>
+  <p>Dump your trained models and share them with a simple tags-based discovery.</p>
+  </div>
+  <div class="card">
+    <h3>⚡ Fast & Simple</h3>
+    <p>Built on FastAPI + HTMX + Jinja2 — fast, server-rendered, no JS framework needed.</p>
+  </div>
+</div>
+{% endblock %}

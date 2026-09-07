@@ -1,0 +1,26 @@
+[
+  {
+    "content": "Read current files + design farming green 3D scroll system",
+    "status": "completed"
+  },
+  {
+    "content": "Rewrite index.html with cinematic farming field sections + pinned scroll",
+    "status": "completed"
+  },
+  {
+    "content": "Rewrite styles.css with farming greens, 3D transforms, mist layers, responsive",
+    "status": "in_progress"
+  },
+  {
+    "content": "Rewrite main.js scroll animations: camera zoom, perspective tilt, parallax, fade",
+    "status": "pending"
+  },
+  {
+    "content": "Restart server, verify landing page renders + scrolls smoothly",
+    "status": "pending"
+  },
+  {
+    "content": "Update AGENT.md with new design notes",
+    "status": "pending"
+  }
+]

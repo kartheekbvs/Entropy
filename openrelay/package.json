@@ -1,0 +1,26 @@
+{
+  "name": "openrelay",
+  "version": "1.0.0",
+  "description": "OpenRelay — the never-fail LLM relay gateway. One OpenAI-compatible endpoint in front of a chain of providers with infinite wrap-around rotation (1 → 2 → 3 … → N → back to 1), circuit breakers, persistent failover memory, request queue and live dashboard. Zero dependencies.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/smoke.js"
+  },
+  "engines": { "node": ">=18" },
+  "license": "MIT",
+  "keywords": [
+    "llm",
+    "gateway",
+    "relay",
+    "failover",
+    "fallback-chain",
+    "openai-compatible",
+    "circuit-breaker",
+    "rate-limit",
+    "backoff",
+    "streaming",
+    "sse",
+    "proxy"
+  ]
+}
