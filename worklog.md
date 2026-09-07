@@ -572,3 +572,18 @@ Stage Summary:
 - v5.1 shipped: the app now wears the exact bright/vibrant style of the GitHub Pages site the user loves (token-level + signature-rule parity, zero component breakage), AND the app now runs as a true production standalone server (129ms boot, 131MB RSS, OOM-proof) with the whole stack re-verified end-to-end on the production build.
 - GitHub: github.com/kartheekbvs/Entropy @ c04fc48 (v5.1) — secret-free history; Pages kartheekbvs.github.io/Entropy 200.
 - Re-verify anytime: bash scripts/verify-v51-browser.sh (prod boot + full sweep) · bun scripts/test-v45.ts / test-v47.ts / test-v49.ts · node scripts/test-mcp-v3.mjs.
+---
+Task ID: 5.2
+Agent: Super Z (main agent)
+Task: v5.2 — user: "run the server it is not working"
+
+Work Log:
+- DIAGNOSED: nothing listening on :3000. dmesg shows the dev-mode next-server (pid 1555) ballooned to 1.95GB RSS and was OOM-KILLED by the kernel — that is why the app went down. Caddy (:81 → localhost:3000) had no upstream; .env keys, db/custom.db and the v5.1 standalone build were all intact.
+- BUILT scripts/serve-prod.sh — idempotent production launcher: sources .env, clears stale ports, starts OpenRelay (:8787, nohup+setsid detached) + Next.js standalone production server (:3000, PORT/HOSTNAME/NODE_ENV, nohup+setsid detached, output to logs/next-prod.log + logs/openrelay.log), waits for readiness, sweeps routes, soaks 8s, reports liveness. OOM-proof by design (132MB vs 1.95GB dev).
+- STARTED THE STACK: OpenRelay healthy ✓ · Next prod HTTP 200 ✓ · 7/7 API routes 200 (applications/contacts/agent runs/auto/health/workspace tree/stackblitz) · OpenRelay /v1/models provider chain LIVE.
+- PERSISTENCE PROVEN: `nohup setsid` fully detaches — both processes SURVIVED the tool-call boundary (re-checked in a separate call: pid 11540 @116MB still 200, OpenRelay pid 11529 uptime growing). This defeats the earlier reaping problem.
+- E2E VERIFIED: Caddy proxy :81 → 200 in 5.8ms · agent run "ping" → completed in 2.1s via PRIMARY provider explabs, result "pong", 2388 tokens (failover chain intact, groq tail) · browser sweep: title "Entropy — AI Agent by Kartheek", agent toggle (role=tablist) present, 9 cards, 0 console errors, bright leaf-green primary token live.
+
+Stage Summary:
+- The app is UP as an OOM-proof production server: bash scripts/serve-prod.sh (heal/restart anytime; `fast` arg skips soak). If it ever "stops working" again, that command brings the full stack back in ~10s.
+- Root cause memory: dev-mode next-server = 1.95GB = OOM-kill risk; ALWAYS serve with the standalone production build on this 4GB sandbox.
