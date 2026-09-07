@@ -44,12 +44,12 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   v5.0 "VERDANT FARMS — CINEMATIC" THEME  (Entropy)
-   ModelForge-inspired: deep forest-black base, leaf-green primary,
-   lime + wheat-gold harvest accents, glassmorphism surfaces with
-   backdrop blur, 3D layered depth, an animated green-farm aurora
-   and a cinematic film-grain + vignette layer.
-   Replaces the v3.7–v4.9 pink neon palette.
+   v5.1 "VERDANT FARMS — CINEMATIC · BRIGHT" THEME  (Entropy)
+   Visual parity with the GitHub Pages build (kartheekbvs.github.io/Entropy):
+   same deep-forest base, every accent tuned to the vivid harvest
+   palette — leaf #71c84b, lime #b7df62, wheat #f0c66a, mint #9ee7a0.
+   Sunlit gradient buttons, glowing lime chip washes, luminous
+   borders, brighter aurora — the farm at golden hour.
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
@@ -57,82 +57,82 @@
   /* deep forest floor (#07130d → #0b1f14) */
   --background: oklch(0.17 0.035 152);
   --foreground: oklch(0.96 0.03 125);
-  --card: oklch(0.27 0.06 150 / 55%);
+  --card: oklch(0.24 0.055 150 / 58%);
   --card-foreground: oklch(0.96 0.03 125);
-  --popover: oklch(0.23 0.055 150 / 88%);
+  --popover: oklch(0.25 0.06 150 / 94%);
   --popover-foreground: oklch(0.96 0.03 125);
   /* leaf green #71c84b */
   --primary: oklch(0.77 0.19 142);
   --primary-foreground: oklch(0.17 0.05 150);
-  --secondary: oklch(0.32 0.065 150 / 70%);
-  --secondary-foreground: oklch(0.92 0.03 125);
-  --muted: oklch(0.29 0.05 150 / 65%);
-  --muted-foreground: oklch(0.74 0.04 138);
-  --accent: oklch(0.38 0.09 140 / 75%);
-  --accent-foreground: oklch(0.96 0.04 120);
-  --destructive: oklch(0.62 0.2 25);
-  --border: oklch(0.55 0.11 142 / 40%);
-  --input: oklch(0.48 0.1 142 / 55%);
+  --secondary: oklch(0.75 0.16 142 / 14%);
+  --secondary-foreground: oklch(0.89 0.15 125);
+  --muted: oklch(0.3 0.05 150 / 45%);
+  --muted-foreground: oklch(0.81 0.045 136);
+  --accent: oklch(0.75 0.16 142 / 16%);
+  --accent-foreground: oklch(0.89 0.15 125);
+  --destructive: oklch(0.64 0.22 25);
+  --border: oklch(0.75 0.16 142 / 38%);
+  --input: oklch(0.62 0.14 142 / 55%);
   --ring: oklch(0.77 0.19 142);
   /* harvest charts: leaf · emerald · wheat · lime · spring-water */
   --chart-1: oklch(0.77 0.19 142);
-  --chart-2: oklch(0.7 0.15 160);
-  --chart-3: oklch(0.84 0.13 90);
-  --chart-4: oklch(0.87 0.16 118);
-  --chart-5: oklch(0.78 0.1 175);
-  --sidebar: oklch(0.22 0.045 152 / 70%);
+  --chart-2: oklch(0.64 0.16 152);
+  --chart-3: oklch(0.85 0.13 88);
+  --chart-4: oklch(0.87 0.17 120);
+  --chart-5: oklch(0.88 0.11 155);
+  --sidebar: oklch(0.22 0.045 152 / 75%);
   --sidebar-foreground: oklch(0.96 0.03 125);
   --sidebar-primary: oklch(0.77 0.19 142);
   --sidebar-primary-foreground: oklch(0.17 0.05 150);
-  --sidebar-accent: oklch(0.35 0.08 145 / 70%);
-  --sidebar-accent-foreground: oklch(0.96 0.03 125);
-  --sidebar-border: oklch(0.55 0.11 142 / 40%);
+  --sidebar-accent: oklch(0.75 0.16 142 / 14%);
+  --sidebar-accent-foreground: oklch(0.89 0.15 125);
+  --sidebar-border: oklch(0.75 0.16 142 / 38%);
   --sidebar-ring: oklch(0.77 0.19 142);
-  --terminal-green: oklch(0.86 0.15 150);
+  --terminal-green: oklch(0.88 0.16 145);
   --terminal-red: oklch(0.68 0.2 22);
-  --terminal-amber: oklch(0.84 0.13 90);
+  --terminal-amber: oklch(0.85 0.13 88);
   /* legacy var names kept for compatibility — now verdant glows */
-  --glow-pink: oklch(0.77 0.19 142 / 35%);
-  --glow-magenta: oklch(0.84 0.13 90 / 26%);
+  --glow-pink: oklch(0.77 0.19 142 / 40%);
+  --glow-magenta: oklch(0.85 0.13 88 / 30%);
 }
 
 .dark {
   --background: oklch(0.17 0.035 152);
   --foreground: oklch(0.96 0.03 125);
-  --card: oklch(0.27 0.06 150 / 55%);
+  --card: oklch(0.24 0.055 150 / 58%);
   --card-foreground: oklch(0.96 0.03 125);
-  --popover: oklch(0.23 0.055 150 / 88%);
+  --popover: oklch(0.25 0.06 150 / 94%);
   --popover-foreground: oklch(0.96 0.03 125);
   --primary: oklch(0.77 0.19 142);
   --primary-foreground: oklch(0.17 0.05 150);
-  --secondary: oklch(0.32 0.065 150 / 70%);
-  --secondary-foreground: oklch(0.92 0.03 125);
-  --muted: oklch(0.29 0.05 150 / 65%);
-  --muted-foreground: oklch(0.74 0.04 138);
-  --accent: oklch(0.38 0.09 140 / 75%);
-  --accent-foreground: oklch(0.96 0.04 120);
-  --destructive: oklch(0.62 0.2 25);
-  --border: oklch(0.55 0.11 142 / 40%);
-  --input: oklch(0.48 0.1 142 / 55%);
+  --secondary: oklch(0.75 0.16 142 / 14%);
+  --secondary-foreground: oklch(0.89 0.15 125);
+  --muted: oklch(0.3 0.05 150 / 45%);
+  --muted-foreground: oklch(0.81 0.045 136);
+  --accent: oklch(0.75 0.16 142 / 16%);
+  --accent-foreground: oklch(0.89 0.15 125);
+  --destructive: oklch(0.64 0.22 25);
+  --border: oklch(0.75 0.16 142 / 38%);
+  --input: oklch(0.62 0.14 142 / 55%);
   --ring: oklch(0.77 0.19 142);
   --chart-1: oklch(0.77 0.19 142);
-  --chart-2: oklch(0.7 0.15 160);
-  --chart-3: oklch(0.84 0.13 90);
-  --chart-4: oklch(0.87 0.16 118);
-  --chart-5: oklch(0.78 0.1 175);
-  --sidebar: oklch(0.22 0.045 152 / 70%);
+  --chart-2: oklch(0.64 0.16 152);
+  --chart-3: oklch(0.85 0.13 88);
+  --chart-4: oklch(0.87 0.17 120);
+  --chart-5: oklch(0.88 0.11 155);
+  --sidebar: oklch(0.22 0.045 152 / 75%);
   --sidebar-foreground: oklch(0.96 0.03 125);
   --sidebar-primary: oklch(0.77 0.19 142);
   --sidebar-primary-foreground: oklch(0.17 0.05 150);
-  --sidebar-accent: oklch(0.35 0.08 145 / 70%);
-  --sidebar-accent-foreground: oklch(0.96 0.03 125);
-  --sidebar-border: oklch(0.55 0.11 142 / 40%);
+  --sidebar-accent: oklch(0.75 0.16 142 / 14%);
+  --sidebar-accent-foreground: oklch(0.89 0.15 125);
+  --sidebar-border: oklch(0.75 0.16 142 / 38%);
   --sidebar-ring: oklch(0.77 0.19 142);
-  --terminal-green: oklch(0.86 0.15 150);
+  --terminal-green: oklch(0.88 0.16 145);
   --terminal-red: oklch(0.68 0.2 22);
-  --terminal-amber: oklch(0.84 0.13 90);
-  --glow-pink: oklch(0.77 0.19 142 / 35%);
-  --glow-magenta: oklch(0.84 0.13 90 / 26%);
+  --terminal-amber: oklch(0.85 0.13 88);
+  --glow-pink: oklch(0.77 0.19 142 / 40%);
+  --glow-magenta: oklch(0.85 0.13 88 / 30%);
 }
 
 @layer base {
@@ -159,6 +159,37 @@
     inset 0 1px 0 oklch(0.96 0.05 125 / 8%),
     0 10px 36px oklch(0.45 0.14 145 / 16%),
     0 2px 8px oklch(0.2 0.05 152 / 35%);
+  transition: box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* v5.1 Pages-parity: a soft leaf halo blooms under a hovered card */
+.bg-card:hover {
+  box-shadow:
+    inset 0 1px 0 oklch(0.96 0.05 125 / 10%),
+    0 10px 36px oklch(0.45 0.14 145 / 22%),
+    0 2px 8px oklch(0.2 0.05 152 / 35%),
+    0 0 50px rgba(113, 200, 75, 0.14);
+}
+
+/* ── v5.1 SUNLIT PRIMARY (Pages-parity) ───────────────────────
+   Solid bg-primary surfaces (Buttons, active pills, Progress fills,
+   live dots) get the Pages' sunlit gradient + halo. SAFE by design:
+   alpha utilities like bg-primary/15 are DIFFERENT class tokens and
+   keep their translucent wash — only solid surfaces light up. ── */
+.bg-primary {
+  background-image: linear-gradient(135deg, oklch(0.66 0.16 146), oklch(0.77 0.19 142));
+  box-shadow:
+    0 6px 22px rgba(113, 200, 75, 0.32),
+    inset 0 1px 0 rgba(238, 247, 223, 0.22);
+}
+.bg-primary:hover {
+  box-shadow:
+    0 8px 30px rgba(113, 200, 75, 0.45),
+    inset 0 1px 0 rgba(238, 247, 223, 0.28);
+}
+
+/* Pages-parity glowing gradient meter fills (JD coverage bars, rings) */
+[role="progressbar"] > div {
+  box-shadow: 0 0 12px rgba(113, 200, 75, 0.4);
 }
 
 /* Explicit glass panel (explorer, mission control) */
@@ -191,29 +222,29 @@
   box-shadow: 0 0 0 1px oklch(0.77 0.19 142 / 35%), 0 0 18px var(--glow-pink), 0 0 42px var(--glow-magenta);
 }
 
-/* Gradient text (logos / big numbers) — leaf → lime → wheat harvest */
+/* Gradient text (logos / big numbers) — Pages exact #a9e46d → #71c84b → #f0c66a */
 .gradient-text-pink,
 .gradient-text-verdant {
-  background: linear-gradient(100deg, oklch(0.87 0.16 118), oklch(0.77 0.19 142) 45%, oklch(0.84 0.13 90));
+  background: linear-gradient(100deg, oklch(0.87 0.16 118), oklch(0.77 0.19 142) 45%, oklch(0.85 0.13 88));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 /* ── ANIMATED FARM AURORA + CINEMATIC FILM LAYER ────────────────
-   Fixed layer behind everything: three drifting leaf/lime/wheat
-   radial glows over the forest floor, plus a vignette + film grain
-   for the cinematic ModelForge feel. Pure CSS, GPU-friendly. ── */
+   Fixed layer behind everything: brighter drifting leaf/lime/wheat
+   glows over the forest floor (v5.1 luminance raised to Pages level),
+   plus a vignette + film grain for the cinematic feel. ── */
 .aurora-bg {
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(52% 44% at 18% 12%, oklch(0.5 0.15 150 / 20%), transparent 70%),
-    radial-gradient(45% 40% at 82% 20%, oklch(0.45 0.12 175 / 15%), transparent 70%),
-    radial-gradient(60% 52% at 55% 92%, oklch(0.55 0.12 95 / 12%), transparent 72%),
-    radial-gradient(38% 34% at 92% 78%, oklch(0.55 0.14 118 / 12%), transparent 70%);
+    radial-gradient(52% 44% at 18% 12%, oklch(0.55 0.16 150 / 26%), transparent 70%),
+    radial-gradient(45% 40% at 82% 20%, oklch(0.5 0.14 160 / 20%), transparent 70%),
+    radial-gradient(60% 52% at 55% 92%, oklch(0.62 0.14 88 / 16%), transparent 72%),
+    radial-gradient(38% 34% at 92% 78%, oklch(0.65 0.16 118 / 18%), transparent 70%);
   animation: aurora-drift 26s ease-in-out infinite alternate;
 }
 /* cinematic vignette + film grain over the aurora */

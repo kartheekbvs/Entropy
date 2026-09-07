@@ -209,7 +209,7 @@ export function JobCommandCenter() {
                     onClick={() => switchMode(m)}
                     className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-all sm:text-xs ${
                       active
-                        ? "bg-primary/15 text-primary shadow-[0_0_18px_var(--glow-pink)]"
+                        ? "bg-primary text-primary-foreground shadow-[0_6px_22px_rgba(113,200,75,0.35)]"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                     title={MODE_META[m].tagline}

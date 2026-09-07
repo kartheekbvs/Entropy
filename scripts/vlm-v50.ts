@@ -24,7 +24,7 @@ for (const f of files) {
                 "Answer in under 60 words. Describe this web app screenshot: (1) main brand/title text, (2) dominant color theme (is it green/forest/emerald or pink?), (3) do you see a two-button toggle for JOB AGENT and CODING AGENT, (4) any dropdown button with a chevron showing the current section, (5) overall cinematic/glassy quality.",
             },
             { type: "image_url", image_url: { url: `data:image/png;base64,${b64}` } },
-          ],
+          ] as unknown as string, // multimodal payload — SDK types only declare string
         },
       ],
     });

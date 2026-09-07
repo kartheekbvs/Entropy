@@ -49,38 +49,38 @@ export const STATUS_CONFIG: Record<
 > = {
   saved: {
     label: "Saved",
-    chip: "bg-slate-500/15 text-slate-300 border-slate-500/30",
-    dot: "bg-slate-400",
+    chip: "bg-emerald-400/12 text-emerald-200 border-emerald-400/30",
+    dot: "bg-emerald-300",
   },
   applied: {
     label: "Applied",
-    chip: "bg-sky-500/15 text-sky-300 border-sky-500/30",
-    dot: "bg-sky-400",
+    chip: "bg-amber-400/12 text-amber-200 border-amber-400/30",
+    dot: "bg-amber-300",
   },
   assessment: {
     label: "Assessment",
-    chip: "bg-violet-500/15 text-violet-300 border-violet-500/30",
-    dot: "bg-violet-400",
+    chip: "bg-sky-400/12 text-sky-200 border-sky-400/30",
+    dot: "bg-sky-300",
   },
   interview: {
     label: "Interview",
-    chip: "bg-amber-500/15 text-amber-300 border-amber-500/30",
-    dot: "bg-amber-400",
+    chip: "bg-purple-400/12 text-purple-200 border-purple-400/30",
+    dot: "bg-purple-300",
   },
   offer: {
     label: "Offer",
-    chip: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
-    dot: "bg-emerald-400",
+    chip: "bg-lime-400/15 text-lime-200 border-lime-400/35",
+    dot: "bg-lime-300",
   },
   rejected: {
     label: "Rejected",
-    chip: "bg-red-500/15 text-red-300 border-red-500/30",
-    dot: "bg-red-400",
+    chip: "bg-red-400/12 text-red-200 border-red-400/30",
+    dot: "bg-red-300",
   },
   withdrawn: {
     label: "Withdrawn",
-    chip: "bg-zinc-500/15 text-zinc-400 border-zinc-500/30",
-    dot: "bg-zinc-500",
+    chip: "bg-zinc-400/12 text-zinc-300 border-zinc-400/25",
+    dot: "bg-zinc-400",
   },
 };
 
