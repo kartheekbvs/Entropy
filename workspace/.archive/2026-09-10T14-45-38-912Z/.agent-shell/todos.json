@@ -1,0 +1,10 @@
+[
+  {
+    "content": "Verify MCP v3",
+    "status": "completed"
+  },
+  {
+    "content": "Verify Claude-Code tools",
+    "status": "in_progress"
+  }
+]

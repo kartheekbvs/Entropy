@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux & Computer Networking</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Linux & Computer Networking</h1>
+            <p>Interactive Educational Platform</p>
+        </header>
+        
+        <div class="sidebar" id="sidebar">
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search topics...">
+            </div>
+            
+            <nav>
+                <ul class="nav-list">
+                    <li class="nav-item active" data-module="linux-architecture">
+                        <a href="#linux-architecture">Linux Architecture & FHS</a>
+                    </li>
+                    <li class="nav-item" data-module="text-permissions">
+                        <a href="#text-permissions">Text & Permissions</a>
+                    </li>
+                    <li class="nav-item" data-module="process-system">
+                        <a href="#process-system">Process & System</a>
+                    </li>
+                    <li class="nav-item" data-module="networking-core">
+                        <a href="#networking-core">Networking Core</a>
+                    </li>
+                    <li class="nav-item" data-module="network-tools">
+                        <a href="#network-tools">Network Tools & Diag</a>
+                    </li>
+                    <li class="nav-item" data-module="security-firewalls">
+                        <a href="#security-firewalls">Security & Firewalls</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        
+        <main class="content" id="content">
+            <!-- Content will be dynamically loaded here -->
+        </main>
+    </div>
+    
+    <script src="js/script.js"></script>
+</body>
+</html>

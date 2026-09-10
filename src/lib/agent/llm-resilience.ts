@@ -117,11 +117,28 @@ export class LlmCircuitOpenError extends Error {
   }
 }
 
-/** Transient by default: retried with backoff, then failover. */
+/** v5.4 — PERMANENT provider errors: account/model-state walls that
+ *  retrying can NEVER fix (out of credits, model paywalled, key
+ *  rejected, batch-only slug). Retrying these just burns the chain
+ *  deadline — the exact 46s pre-failover lag the user felt as
+ *  "crashing/lagging". They still fail OVER (next model/provider)
+ *  instantly — they just don't retry the same slug 3x with backoff.
+ *  v5.4b — explabs answers these as HTTP 429 with a card-verification
+ *  BODY ("Complete the $1 card verification to spend platform
+ *  credits…") — 429 alone made them look transient; the wording
+ *  patterns below catch the account-state reality regardless of the
+ *  HTTP status the gateway picks. */
+const PERMANENT_PROVIDER_ERROR_RE =
+  /insufficient_quota|card_required|card verification|requires a credit purchase|spend platform credits|credited to your balance|model_requires_purchase|model_requires_batch|free_tier_requires_payment|model_not_granted|model_location_not_supported|invalid_api_key|billing|credit purchase|HTTP 40[12]:/i;
+
+/** Transient by default: retried with backoff, then failover.
+ *  v5.4 — permanent walls (quota/billing/paywall/bad key) are NEVER
+ *  retried: they fail over on the first refusal. */
 export function isTransientError(e: unknown): boolean {
   if (e instanceof LlmCircuitOpenError) return false;
-  if (asUnavailable(e)) return true;
   const msg = (e as Error).message ?? "";
+  if (PERMANENT_PROVIDER_ERROR_RE.test(msg)) return false;
+  if (asUnavailable(e)) return true;
   return /HTTP (429|5\d\d):|network:|stream:|stream-error:|timeout|aborted|temporarily|overloaded/i.test(msg);
 }
 

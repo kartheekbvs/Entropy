@@ -2285,7 +2285,18 @@ export async function generateWithAuto(
   // The chain never dead-ends while any provider can still answer.
   const roundBaseMs = envPositiveInt("AGENT_CHAIN_ROUND_BASE_MS", 2000);
   const roundMaxMs = Math.max(roundBaseMs, envPositiveInt("AGENT_CHAIN_ROUND_MAX_MS", 30_000));
-  const chainDeadlineMs = envPositiveInt("AGENT_CHAIN_DEADLINE_MS", 120_000);
+  // v5.4 — when the offline engine is armed as the terminal fallback,
+  // the cloud-chain deadline drops 120s → 30s: burning two minutes
+  // rotating refusing providers before a GUARANTEED local answer was
+  // the user's "lagging/crashing" (4.5-min offline runs). Two refusing
+  // relay passes still fit inside 30s, so genuine blips still rotate;
+  // real outages hand off to the local engine in half a minute.
+  // Without the offline engine the old 120s marathon applies (the
+  // chain must never dead-end). Env AGENT_CHAIN_DEADLINE_MS overrides.
+  const chainDeadlineMs = envPositiveInt(
+    "AGENT_CHAIN_DEADLINE_MS",
+    offlineEngineEnabled() ? 30_000 : 120_000
+  );
   const maxRounds = Math.max(0, Number(process.env.AGENT_CHAIN_ROUNDS ?? "") || 0); // 0 = unlimited, deadline rules
   const chainStartedAt = Date.now();
   let failures: string[] = []; // fresh diagnosis per round

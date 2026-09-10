@@ -1,0 +1,304 @@
+/* Linux & Computer Networking Educational Website - Dark Mode Styles */
+
+/* Global Styles */
+:root {
+    --slate-bg: #1e293b;
+    --slate-light: #334155;
+    --slate-dark: #0f172a;
+    --accent-blue: #3b82f6;
+    --accent-green: #10b981;
+    --accent-purple: #8b5cf6;
+    --accent-yellow: #f59e0b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --code-bg: #0f172a;
+    --code-border: #334155;
+    --terminal-bg: #000;
+    --terminal-text: #0f0;
+    --terminal-cursor: #0f0;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--slate-bg);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Header Styles */
+header {
+    background-color: var(--slate-dark);
+    padding: 1.5rem 2rem;
+    border-bottom: 2px solid var(--accent-blue);
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+header h1 {
+    font-size: 2rem;
+    color: var(--accent-blue);
+    margin-bottom: 0.5rem;
+}
+
+header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 280px;
+    background-color: var(--slate-dark);
+    padding: 1rem;
+    border-right: 1px solid var(--code-border);
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 80px);
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+}
+
+.search-container {
+    margin-bottom: 1.5rem;
+}
+
+#search-input {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--slate-light);
+    border: 1px solid var(--code-border);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+#search-input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.nav-list {
+    list-style: none;
+}
+
+.nav-item {
+    margin-bottom: 0.5rem;
+}
+
+.nav-item a {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.nav-item a:hover {
+    background-color: var(--slate-light);
+    color: var(--text-primary);
+}
+
+.nav-item.active a {
+    background-color: var(--accent-blue);
+    color: white;
+}
+
+/* Content Styles */
+.content {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.module {
+    margin-bottom: 3rem;
+    display: none;
+}
+
+.module.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.module h2 {
+    color: var(--accent-blue);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--accent-blue);
+}
+
+.module h3 {
+    color: var(--accent-green);
+    margin: 1.5rem 0 1rem;
+}
+
+.module p {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+}
+
+/* Code Block Styles */
+.code-block {
+    background-color: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 4px;
+    padding: 1rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+    position: relative;
+}
+
+.code-block pre {
+    color: var(--text-primary);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.code-block .command {
+    color: var(--accent-green);
+}
+
+.code-block .output {
+    color: var(--text-primary);
+    margin-top: 0.5rem;
+    padding-left: 1rem;
+    border-left: 3px solid var(--accent-purple);
+}
+
+.code-block .comment {
+    color: var(--accent-yellow);
+    font-style: italic;
+}
+
+.code-block .keyword {
+    color: var(--accent-blue);
+}
+
+/* Terminal Simulator Styles */
+.terminal-simulator {
+    background-color: var(--terminal-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 4px;
+    padding: 1rem;
+    margin: 1rem 0;
+    font-family: 'Courier New', Courier, monospace;
+    position: relative;
+}
+
+.terminal-header {
+    display: flex;
+    margin-bottom: 0.75rem;
+}
+
+.terminal-buttons {
+    display: flex;
+    margin-right: 0.5rem;
+}
+
+.terminal-button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 4px;
+}
+
+.terminal-button.red {
+    background-color: #ff5f56;
+}
+
+.terminal-button.yellow {
+    background-color: #ffbd2e;
+}
+
+.terminal-button.green {
+    background-color: #27c93f;
+}
+
+.terminal-title {
+    flex: 1;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.terminal-content {
+    color: var(--terminal-text);
+    min-height: 150px;
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+}
+
+.terminal-input {
+    display: flex;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.terminal-prompt {
+    color: var(--accent-green);
+    margin-right: 0.5rem;
+}
+
+.terminal-command-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--terminal-text);
+    font-family: inherit;
+    font-size: inherit;
+    outline: none;
+}
+
+.simulate-button {
+    background-color: var(--accent-blue);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.simulate-button:hover {
+    background-color: #2563eb;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        top: 0;
+    }
+    
+    .content {
+        padding: 1rem;
+    }
+}

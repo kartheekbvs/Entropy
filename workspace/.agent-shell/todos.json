@@ -1,10 +1,34 @@
 [
   {
-    "content": "Verify MCP v3",
-    "status": "completed"
+    "content": "",
+    "status": "pending"
   },
   {
-    "content": "Verify Claude-Code tools",
-    "status": "in_progress"
+    "content": "",
+    "status": "pending"
+  },
+  {
+    "content": "",
+    "status": "pending"
+  },
+  {
+    "content": "",
+    "status": "pending"
+  },
+  {
+    "content": "",
+    "status": "pending"
+  },
+  {
+    "content": "",
+    "status": "pending"
+  },
+  {
+    "content": "",
+    "status": "pending"
+  },
+  {
+    "content": "",
+    "status": "pending"
   }
 ]

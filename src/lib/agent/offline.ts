@@ -36,21 +36,28 @@ export function offlineEngineEnabled(): boolean {
   return process.env.OFFLINE_ENGINE !== "0";
 }
 
-// ── Network reachability probe (cached 30s) ──────────────────
-// Cheap HEAD requests with a hard 1.5s timeout. If none of the
+// ── Network reachability probe (cached) ──────────────────────
+// Cheap HEAD requests with a hard timeout. If none of the
 // well-known endpoints answers, we treat the machine as OFFLINE
 // and skip the whole cloud chain — one failed request instead
 // of N × timeout-per-provider (the old "lagging" behavior).
+//
+// v5.4 — COLD-START HARDENING: the first probe in a fresh process
+// can miss on slow first DNS/TLS (all 4 endpoints inside a tight
+// 1.5s window). A false OFFLINE here skips the whole cloud chain
+// for 30s (cached) — the flaky "instant offline" the user saw
+// right after a restart. Fixes: (1) one immediate retry with a
+// wider window, (2) negative results cache for only 5s so the
+// next run re-probes instead of stewing offline, positive results
+// still cache 30s.
 const NET_PROBE_KEY = "__entropyNetProbe";
 const NET_PROBE_TTL_MS = 30_000;
+const NET_PROBE_TTL_DOWN_MS = 5_000;
 
 type NetProbe = { at: number; up: boolean };
 const g = globalThis as unknown as Record<string, unknown>;
 
-export async function probeNetwork(): Promise<boolean> {
-  const cached = g[NET_PROBE_KEY] as NetProbe | undefined;
-  if (cached && Date.now() - cached.at < NET_PROBE_TTL_MS) return cached.up;
-
+async function probeOnce(timeoutMs: number): Promise<boolean> {
   const endpoints = [
     "https://api.groq.com",
     "https://api.experientiallabs.ai",
@@ -61,15 +68,27 @@ export async function probeNetwork(): Promise<boolean> {
   await Promise.race([
     Promise.all(
       endpoints.map((u) =>
-        fetch(u, { method: "HEAD", signal: AbortSignal.timeout(1500) })
+        fetch(u, { method: "HEAD", signal: AbortSignal.timeout(timeoutMs) })
           .then(() => {
             up = true;
           })
           .catch(() => undefined)
       )
     ),
-    new Promise<void>((r) => setTimeout(r, 2000)),
+    new Promise<void>((r) => setTimeout(r, timeoutMs + 500)),
   ]);
+  return up;
+}
+
+export async function probeNetwork(): Promise<boolean> {
+  const cached = g[NET_PROBE_KEY] as NetProbe | undefined;
+  if (cached) {
+    const ttl = cached.up ? NET_PROBE_TTL_MS : NET_PROBE_TTL_DOWN_MS;
+    if (Date.now() - cached.at < ttl) return cached.up;
+  }
+
+  let up = await probeOnce(1500);
+  if (!up) up = await probeOnce(4000); // cold DNS/TLS gets one wider retry
   g[NET_PROBE_KEY] = { at: Date.now(), up } satisfies NetProbe;
   return up;
 }

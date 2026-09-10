@@ -606,3 +606,27 @@ Stage Summary:
 - Deliverable: /home/z/my-project/download/job-command-center.zip (216 files, 1.2M, all gates green).
 - Re-verify: bun scripts/test-v52-offline.ts · bash scripts/verify-v52-css.sh · bash scripts/serve-prod.sh · test-v45/47/49.
 - Sandbox note: background servers under /tmp get reaped at tool-call boundaries (project-dir servers survive) — the win-sim test boots its server inside ONE call, which is enough to prove the flow; on a real Windows machine install.bat's window keeps the server alive.
+---
+Task ID: 5.4
+Agent: Super Z (main agent)
+Task: v5.4 — user: "bro still the live preview is crashing so can you check that and fix the errors in turbo pack"
+
+Work Log:
+- DIAGNOSED the true state: the sandbox had been RESET at 14:38 (same class of reset as v4.5's) — .env wiped to DATABASE_URL-only (every provider "not set"), download/ (the v5.2 ZIP deliverable) gone, .next/standalone gone, and the app restarted in DEV/Turbopack mode (next dev — 1.34GB RSS and climbing, OOM-prone, Next.js dev overlay visible in the UI = the user's "turbo pack errors"). OpenRelay was dead. User's own runs (14:39/14:46) all fell to the offline engine after a 127.5s + 143.9s chain-deadline burn (4.5-min runs = "crashing/lagging"), then the StackBlitz preview showed the offline demo site.
+- ROOT CAUSE 1 (missing keys): restored .env from v4.5/v5.2 key memory — EXPLABS_API_KEY (primary) + GROQ_API_KEY (tail) + full knob set; OPENROUTER/NVIDIA keys were redacted in all records and unrecoverable (left unconfigured; toggles degrade gracefully).
+- ROOT CAUSE 2 (explabs account wall): explabs now refuses EVERY model (incl. all *-free slugs) with account-level billing errors — verified live: 400 insufficient_quota / card_required / model_requires_purchase, AND in-app as HTTP 429 "Complete the $1 card verification to spend platform credits". The account needs a credit purchase — unfixable from code; the chain must fail over FAST instead.
+- ROOT CAUSE 3 (the retry-marathon lag): isTransientError() classified ALL ProviderUnavailableError as transient → withLlmResilience retried each explabs model 3x with backoff → 46s burned before zai got a turn; with only 1 provider configured (wiped .env) the relay burned the full 120s chain deadline before the offline handoff (127.5s/143.9s per round observed in the user's runs).
+- FIX A — llm-resilience.ts: PERMANENT_PROVIDER_ERROR_RE (insufficient_quota, card_required, card verification, requires a credit purchase, spend platform credits, model_requires_purchase/batch, free_tier_requires_payment, model_not_granted, model_location_not_supported, invalid_api_key, billing, HTTP 401/402) — these NEVER retry, fail over on first refusal, regardless of HTTP status the gateway picks.
+- FIX B — llm.ts: chain deadline 120s → 30s when the offline engine is armed (offline still guarantees an answer; burning 2 min rotating refusing providers first was the lag). AGENT_CHAIN_DEADLINE_MS still overrides.
+- FIX C — offline.ts: cold-start network-probe hardening — one wider 4s retry when the first 1.5s race misses (cold DNS/TLS made the FIRST run after every restart skip the whole cloud chain → instant offline, cached 30s); negative probe results now cache only 5s (positive still 30s).
+- REBUILT production (bun run build — 26 routes, ZERO Turbopack build errors) and restarted via serve-prod.sh: app :3000 @137MB RSS (vs 1.34GB dev), OpenRelay :8787 live, Caddy :81 → 200 (10ms).
+- VERIFIED: z-ai SDK works (probe: {"final":"pong"} 0.7s; agent-shaped 9.3s); auto-chain cold-start now reaches zai (forced-zai run: 3 steps/1882 tok/11.4s; auto run: provider zai "pong" in 523ms; post-fix cold run reached zai immediately, 44k tokens of real tool work); offline fallback still answers at the 30s cap.
+- VERIFIED UI: browser — LIVE APP PREVIEW panel renders (StackBlitz iframe: editor + terminal + Preview page + Fork button), 0 console errors, 0 page errors, Next.js Dev Tools overlay GONE (production); chat-history CSS re-verified with scripts/verify-v52-css.sh — no horizontal overflow at 1440px AND 900px, long-token break-words intact.
+- Housekeeping: download/ recreated (reset wiped it), screenshots saved (verify-coding-tab.png).
+
+Stage Summary:
+- "Crashing live preview" root-caused to the sandbox reset (wiped keys + dev-mode server + dead OpenRelay), not the StackBlitz panel itself — the panel renders clean in production mode.
+- "Turbo pack errors" = the Next.js dev/Turbopack overlay from dev-mode serving — eliminated by rebuilding + serving the standalone production build (serve-prod.sh).
+- The LLM chain is FAST again on cold start: explabs account-walls fail over in ~3-5s → z-ai answers (verified 3 ways). Offline engine caps worst-case at ~35s instead of 4.5 min.
+- explabs needs an account credit purchase (platform-side) — until then zai (sandbox) / groq (user's Windows machine) carry the runs; all other keys still welcome via .env.
+- Re-verify: bash scripts/serve-prod.sh · bash scripts/verify-v52-css.sh · scripts/test-zai-probe.ts.
